@@ -11,6 +11,7 @@
 #new reveal.py = reveal.py + reveal_support.py + reveal_proc.py + reveal_proc_support.py
 # import mysql.connector
 
+#newcomment git check
 import psycopg2
 from pickle import TRUE
 from flask import *
