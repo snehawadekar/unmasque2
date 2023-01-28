@@ -1,14 +1,22 @@
 import os
 import sys
 
+copy_min_time=0
+view_min_time=0
+cs_time=0
 
+
+database_in_use='december'
 
 query1=""
 output1=""
 #error test
 error=""
-view_based_minimizer= False
-copy_based_minimizer= True
+# view_based_minimizer= False
+# copy_based_minimizer= True
+
+minimizer="view_based"
+correlated_sampling="no"
 #default minimizer: copy-based
 
 
@@ -73,7 +81,7 @@ global_db_prev_screen = ""
 global_no_execCall = 0
 
 # global_support_files_path = "/services/app/support_files/"
-# global_reduced_data_path = "/services/app/reduced_data/"
+global_reduced_data_path = "C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNMASQUE-Web_backup-before-aoa_copy/reduced_data/"
 global_output_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./output/")
 global_input_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./input/")
 
@@ -85,9 +93,14 @@ global_all_relations = []
 global_pk_dict = {}
 global_index_dict = {}
 
+global_AoA = 0
+global_proj = []
+
 global_core_relations = []
 global_join_graph = []
 global_filter_predicates = []
+global_filter_aeq = []
+global_filter_aoa = []
 global_projected_attributes = []
 global_groupby_attributes = []
 global_aggregated_attributes = []
@@ -99,6 +112,7 @@ global_output_list = []
 global_projection_names = []
 global_groupby_flag = False
 global_attrib_types = []
+global_attrib_types_dict = {}
 global_all_attribs = []
 global_key_attributes = []
 global_d_plus_value = {}

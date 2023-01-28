@@ -321,7 +321,7 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 	cur.close()
 	cur = reveal_globals.global_conn.cursor()
 	# cur.execute("copy " + tabname + " from " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
-	#conn.commit()
+	# conn.commit()
 	cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 	cur.close()
 	if operator == '<=':

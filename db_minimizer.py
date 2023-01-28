@@ -4,10 +4,12 @@ import csv
 import copy
 import math
 import executable
+import pandas as pd
+
 sys.path.append('../') 
 import reveal_globals
 import psycopg2
-import pandas as pd
+
 import where_clause
 
 def getCoreSizes(core_relations):
@@ -20,6 +22,7 @@ def getCoreSizes(core_relations):
             res = cur.fetchone()#it will return a tuple
             cur.close()
             core_sizes[tabname] = int(str(res[0]))
+            print("core sizes==",core_sizes)
         except Exception as error:
             print(type(error))
             reveal_globals.error="Unmasque:\n Error in getting table Sizes. \n Postgres Error: \n" + dict(error.args[0])['M']
@@ -30,7 +33,7 @@ def getTableAttri(core_relations):
 	get_attri_dict = {}
 	for i in core_relations:
 		cur = reveal_globals.global_conn.cursor()
-		cur.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' and TABLE_CATALOG='tpch' and table_name="+"'"+i+"'"+";")
+		cur.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' and TABLE_CATALOG='december' and table_name="+"'"+i+"'"+";")
 		res = cur.fetchall()
 		cur.close()
 		temp_list=[]
@@ -317,6 +320,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 
 # view-based minimizer
 def reduce_Database_Instance3(core_relations, method = 'binary partition', max_no_of_rows = 1, executable_path = ""):
+    print("db_minimizer.reduce_Database_Instance3")
     reveal_globals.local_other_info_dict = {}
     #Perform sampling
     #print(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter,"++++SAMPLING++++++++")
@@ -382,33 +386,33 @@ def reduce_Database_Instance3(core_relations, method = 'binary partition', max_n
             del core_sizes[tabname]
     #WRITE TO Reduced Data Directory
     #check for data directory existence, if not exists , create it
-    # if not os.path.exists(reveal_globals.global_reduced_data_path):
-    #     os.makedirs(reveal_globals.global_reduced_data_path)
-    # for tabname in core_relations:
-    #     cur = reveal_globals.global_conn.cursor()
-    #     cur.execute("copy " + tabname + " to " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
-    #     cur.close()
-
-    
+    if not os.path.exists(reveal_globals.global_reduced_data_path):
+        os.makedirs(reveal_globals.global_reduced_data_path)
     for tabname in core_relations:
         cur = reveal_globals.global_conn.cursor()
-        # cur.execute('drop table'+ tabname + "4 )
-        cur.execute("create table " + tabname + "4 as select * from " + tabname + ";")
+        cur.execute("copy " + tabname + " to " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
         cur.close()
+
+    
+    # for tabname in core_relations:
+    #     cur = reveal_globals.global_conn.cursor()
+    #     # cur.execute('drop table'+ tabname + "4 )
+    #     cur.execute("create table " + tabname + "4 as select * from " + tabname + ";")
+    #     cur.close()
 
     #SANITY CHECK
     new_result = executable.getExecOutput()
     if len(new_result) <= 1:
         print("Error: Query out of extractable domain\n")
-        return False
+        # return False
     #populate screen data
     #POPULATE MIN INSTANCE DICT
-    # for tabname in reveal_globals.global_core_relations:
-    # 	reveal_globals.global_min_instance_dict[tabname] = []
-    # 	with open(reveal_globals.global_reduced_data_path + tabname + '.csv', 'rt') as f:
-    # 		data = csv.reader(f)
-    # 		for row in data:
-    # 			reveal_globals.global_min_instance_dict[tabname].append(tuple(row))
+    for tabname in reveal_globals.global_core_relations:
+        reveal_globals.global_min_instance_dict[tabname] = []
+        with open(reveal_globals.global_reduced_data_path + tabname + '.csv', 'rt') as f:
+            data = csv.reader(f)
+            for row in data:
+                reveal_globals.global_min_instance_dict[tabname].append(tuple(row))
 
     conn=reveal_globals.global_conn
     for tabname in reveal_globals.global_core_relations:

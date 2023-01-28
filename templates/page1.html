@@ -1,9 +1,13 @@
 
 <div >
-    Select Minimizer:
+    
+    <!-- what to do here -->
+    
+<!--     
     <a href="set_view_based_minimizer" ><button type="button" id="b1" >View Based Minimizer </button></a>
     <a href="set_copy_based_minimizer"><button type="button"  id="b2" >Copy Based Minimizer </button></a>
-    <textbox id="textarea2" width="10px" height="10">{{min_option}}</textbox>
+    <a href="set_correlated_sampling"><button type="button"  id="b3" >Correlated sampling </button></a>
+    <textbox id="textarea2" width="10px" height="10">{{min_option}}</textbox> -->
 
 </div>
 
@@ -16,13 +20,36 @@
 
   
     <form name='form' method='POST' action='/query_process_page' >   
-    
+      <table>
+        <tr>
+          <td>
+              Use Correlated Sampling?
+        
+              <input type="radio" id="c1" name="correlated_sampling" value="yes">Yes
+              <input type="radio" id="c2" name="correlated_sampling" value="no">No <br>
+            
+            </td>
+          <td>
+            <input type="radio" id="m1" name="minimizer" value="view_based">
+            <label for="view_based">View Based Minimizer</label>
+            <input type="radio" id="m2" name="minimizer" value="copy_based">
+            <label for="copy_based">Copy Based minimizer </label><br>
+            </td>
+            
+            
+
+        </tr>
+          
+
+      </table>
       
          
       <div class="col-75">
         <table>
           <tr>
             <td width="1400px">
+
+
               <label for="subject">Write your query here:</label>
             
               <textarea id="n" name="QUERY" placeholder="blackbox query...." >{{q}}</textarea>

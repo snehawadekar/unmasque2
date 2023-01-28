@@ -1,3 +1,5 @@
+#restoring database properly checked befor adding aoa-14 dec
+
 import sys
 import psycopg2
 sys.path.append('../')
@@ -7,10 +9,10 @@ def restore_database_instance():
 		print('Restoring database instance to initial state.')
 	else:
 		return
-	for tabname in reveal_globals.global_core_relations:
+	for tabname in reveal_globals.global_all_relations:
 		try:
 			cur = reveal_globals.global_conn.cursor()
-			cur.execute('alter table ' + tabname + '1 rename to ' + tabname + '2;')
+			cur.execute('alter table ' + tabname + '_restore rename to ' + tabname + '2;')
 			#The above command will inherently check if tabname1 exists
 			cur.execute('drop table ' + tabname + ';')
 			cur.execute('alter table ' + tabname + '2 rename to ' + tabname + ';')

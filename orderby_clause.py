@@ -30,14 +30,23 @@ class CandidateAttribute():
 		print(self.dependencyList)
 		print(self.index)
 		print('')
-
+import time
 def checkOrdering(obj, result):
 	print("inside -- orderby_clause.checkOrdering")
+	print(len(result),result)
+	# time.sleep(30)
 	try:
-		if result[1][obj.index] > result[2][obj.index]:
-			return 'desc'
-		else:
-			return 'asc'
+		i=2
+		got_ans=0
+		while(not(got_ans)):
+			if result[1][obj.index] > result[i][obj.index]:
+				ans= 'desc'
+				got_ans=1
+			elif result[1][obj.index] < result[i][obj.index]:
+				ans= 'asc'
+				got_ans=1
+			i+=1
+		return ans
 	except:
 		return None
 
@@ -249,4 +258,6 @@ def get_orderby_attributes():
 	if reveal_globals.global_input_type == "1":
 		reveal_globals.global_attrib_dict['order by'].sort()
 	#####################
+	print(orderby_list)
+	time.sleep(10)
 	return orderby_list

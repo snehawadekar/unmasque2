@@ -85,7 +85,7 @@ def getExecOutput():
                     temp.append(str(val))
                 result.append(tuple(temp))
     except Exception as error:
-        reveal_globals.error='Unmasque Error: \n Executable could not be run. Error: ' +  dict(error.args[0])['M']
+        # reveal_globals.error='Unmasque Error: \n Executable could not be run. Error: ' +  dict(error.args[0])['M']
         print('Executable could not be run. Error: ' + str(error))
         raise error
     return result

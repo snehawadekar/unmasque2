@@ -1,0 +1,2 @@
+l_orderkey,l_partkey,l_suppkey,l_linenumber,l_quantity,l_extendedprice,l_discount,l_tax,l_returnflag,l_linestatus,l_shipdate,l_commitdate,l_receiptdate,l_shipinstruct,l_shipmode,l_comment
+12417,156646,1677,3,45,76618.80,0.08,0.00,R,F,1994-01-03,1994-01-07,1994-01-11,COLLECT COD              ,AIR       ,ts use carefully acc
