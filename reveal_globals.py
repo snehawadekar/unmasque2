@@ -54,7 +54,10 @@ global_clauses_with_syntactic_changes = ""
 global_number_of_query_invocations = ""
 global_tot_ext_time = ""
 
-global_select_time = ""
+copy_min_time=0
+view_min_time=0
+cs_time=0
+global_projection_time = ""
 global_min_time = ""
 global_from_time = ""
 global_where_time = ""

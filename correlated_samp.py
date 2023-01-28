@@ -61,34 +61,18 @@ def correlated_sampling_start():
 	for table in reveal_globals.global_all_relations:
 		cur.execute("alter table " + table + "_tmp rename to " + table + " ;")
 	cur.close()
+	# cs sampling time
 	reveal_globals.cs_time = time.time() - start_time
 	return
 
 			
    
         
-    
-
-# def restore_database_cs():
-# 	# tables1 = ['lineitem', 'orders', 'customer', 'part', 'supplier', 'partsupp', 'nation', 'region']
-# 	for tabname in reveal_globals.global_core_relations:
-# 		cur = reveal_globals.global_conn.cursor()
-# 		cur.execute('drop table ' + tabname + ';')
-# 		cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
-# 		#The above command will inherently check if tabname1 exists
-# 		cur.execute("insert into " + tabname + " select * from " + tabname + "_restore;")
-# 		# cur.execute('alter table ' + tabname + '2 rename to ' + tabname + ';')
-# 		cur.close()
 
     
 def correlated_sampling():
     # view based correlated sampling
 	print("Starting correlated sampling ")
-
-	# start_time = time.time()
-
-	#random sampling for source relation lineitem
-	# tables1 = ['lineitem', 'orders', 'customer', 'part', 'supplier', 'partsupp', 'nation', 'region']
 	p = 0
 	res = 0
 	n = 10000
@@ -109,20 +93,13 @@ def correlated_sampling():
 
 
 	#calculate initial sampling percentage for lineitem
-
-
-
-
 	cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	for table in reveal_globals.global_all_relations:
 		cur.execute("create unlogged table " + table + " (like " + table + "_tmp);")
-
 	cur.close()
 
 	#genereate correlated sample synopsis
-
 	cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
 	cur.execute("insert into lineitem select * from lineitem_tmp tablesample system(" + str(p) + ");")
 	cur.execute("insert into orders select * from orders_tmp where o_orderkey in (select distinct(l_orderkey) from lineitem) on conflict do nothing;")
 	cur.execute("insert into customer select * from customer_tmp where c_custkey in (select distinct(o_custkey) from orders) on conflict do nothing;")
@@ -133,20 +110,17 @@ def correlated_sampling():
 	cur.execute("insert into supplier select * from supplier_tmp where s_suppkey in (select distinct(ps_suppkey) from partsupp);")
 	cur.execute("insert into nation select * from nation_tmp where n_nationkey in (select distinct(s_nationkey) from supplier) on conflict do nothing;")
 	cur.execute("insert into region select * from region_tmp where r_regionkey in (select distinct(n_regionkey) from nation) on conflict do nothing;")
-
 	cur.close()
 
   
-
-	# reveal_globals.cs_time = time.time()-start_time
-	cs={}
-	for table in reveal_globals.global_all_relations:
-		cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-		cur.execute('select count(*) from ' + table + ';')
-		t = cur.fetchone()
-		cs[table] = int(str(t[0]))
-		cur.close()
-	print(cs)
+	# cs={}
+	# for table in reveal_globals.global_all_relations:
+	# 	cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	# 	cur.execute('select count(*) from ' + table + ';')
+	# 	t = cur.fetchone()
+	# 	cs[table] = int(str(t[0]))
+	# 	cur.close()
+	# print(cs)
 	new_result= executable.getExecOutput()
 	if len(new_result)<=1:
 		print('sampling failed in iteraation')

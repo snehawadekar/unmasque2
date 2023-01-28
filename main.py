@@ -241,8 +241,6 @@ def extractionStart(*args):
 
 
 def func_from_start():
-    global status
-    status="from started"
     print("inside:   reveal_proc_support.func_from_start")
     reveal_globals.local_start_time = time.time()
     reveal_globals.global_core_relations = from_clause.getCoreRelations() #aman
@@ -260,9 +258,6 @@ def func_from_start():
 
 
 def func_from_Complete():
-    global status
-    status="from completed"
-    time.sleep(0.00005)
     print("inside:   reveal_proc_support.func_from_Complete")
     reveal_globals.local_end_time = time.time()
     reveal_globals.global_from_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
@@ -273,7 +268,6 @@ def func_from_Complete():
     func_min_start()
 
 def func_min_start():
-    global status
     # all_tables=[]
     # cur = reveal_globals.global_conn.cursor()
     # cur.execute("select table_name from information_schema.tables where table_schema ='public';")
@@ -288,7 +282,6 @@ def func_min_start():
         cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
         cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
         cur.close()
-    status="minimization started"
     print("inside:   reveal_proc_support.func_min_start")
     reveal_globals.local_start_time = time.time()
 	#INITIALIZATION
@@ -374,8 +367,8 @@ def func_assemble_Complete():
     reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
-    print("end")
-    print("$$$$****$$$$")
+    # print("end")
+    # print("$$$$****$$$$")
     #time.sleep(50)
     # update_load()
     error_handler.restore_database_instance()
@@ -589,7 +582,7 @@ def func_groupby_start():
 def func_project_Complete():
     print("inside:   reveal_proc_support.func_project_Complete")
     reveal_globals.local_end_time = time.time()
-    reveal_globals.global_select_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_projection_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
     # update_load()
@@ -647,10 +640,10 @@ def func_filter_Complete():
 
 
 def func_filter_start():
-	print("inside:   reveal_proc_support.func_filter_start")
+	# print("inside:   reveal_proc_support.func_filter_start")
 	reveal_globals.local_start_time = time.time() #aman
 	reveal_globals.global_filter_predicates = where_clause.get_filter_predicates()
-	print("where time: ", time.time() - reveal_globals.local_start_time) #aman
+	# print("where time: ", time.time() - reveal_globals.local_start_time) #aman
 	for elt in reveal_globals.global_filter_predicates:
 		predicate = ''
 		if elt[2].strip() == 'range':
@@ -883,6 +876,16 @@ print(x)
 error_handler.restore_database_instance
 reveal_support_init()
 
-print(" copy_min_time ", reveal_globals.copy_min_time)
-print(" view_min_time ", reveal_globals.view_min_time)
-print(" cs_time ", reveal_globals.cs_time)
+
+print("From Clause Time : ", reveal_globals.global_from_time)
+print("total DB Minimizer Time : ", reveal_globals.global_min_time)
+print("---copy_min_time : ", reveal_globals.copy_min_time)
+print("---view_min_time : ", reveal_globals.view_min_time)
+print("---cs_time s: ", reveal_globals.cs_time)
+print("Join Clause Extr : ", reveal_globals.global_join_time)
+print("Filter Predicate Ext : ", reveal_globals.global_filter_time)
+print("Projection extractor : ", reveal_globals.global_projection_time)
+print("Group By : ", reveal_globals.global_groupby_time)
+print("Aggregate Time : ", reveal_globals.global_agg_time)
+print("Order By : ", reveal_globals.global_orderby_time)
+print("Limit : ", reveal_globals.global_limit_time)

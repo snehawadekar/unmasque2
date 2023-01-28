@@ -1,6 +1,6 @@
 #whole from clause taken / copied from aman's code of 13 of december
 
-
+import time
 import sys
 try:
 	import psycopg2
@@ -113,7 +113,7 @@ def getCoreRelations(method = 'rename'):
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("set statement_timeout to '0s'")
 		cur.close()
-	print("from - line 113") #aman
+	# print("from - line 113") #aman
 	print(core_relations)
 	return sorted(core_relations)
 
