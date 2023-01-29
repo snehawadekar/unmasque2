@@ -133,10 +133,6 @@ def getProjectedAttributes():
     # # aug 5
     for val in new_result:
         val2=val
-        print("val	:",val)
-        print("type val	:",type(val))
-        print(val2.replace('.','',1).isdigit() )
-        print(is_number(val))
         if is_number(val):
             if val2.isdigit():
                 new_val = str(int(float(val)))
@@ -160,8 +156,8 @@ def getProjectedAttributes():
             else:
                 projectedAttrib.append('')
     
-    print("projectedAttrib after change  :",projectedAttrib)
-    print("projectionnames  :",    projection_names)
+    # print("projectedAttrib after change  :",projectedAttrib)
+    # print("projectionnames  :",    projection_names)
 
     for i in range(0,len(projectedAttrib)):
         if projectedAttrib[i]=='' and projectedAttrib1[i]!='':

@@ -5,7 +5,7 @@ sys.path.append('../')
 import reveal_globals
 
 def getExecOutput():
-    print("inside :-- executable.getExecOutput")
+    # print("inside :-- executable.getExecOutput")
     result = []
     try:
         cur = reveal_globals.global_conn.cursor()

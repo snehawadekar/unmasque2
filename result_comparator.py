@@ -53,7 +53,8 @@ def match(Q_E, res):
     # Filling the table r_h
     for i in range(1,len(result)):
         cur = reveal_globals.global_conn.cursor()
-        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES'+str(result[i])+'; ')
+        # result[i]= tuple(result[i][0])
+        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES '+str(result[i])+'; ')
         cur.close()
 
     cur  = reveal_globals.global_conn.cursor()

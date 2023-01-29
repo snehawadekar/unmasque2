@@ -57,6 +57,7 @@ global_tot_ext_time = ""
 copy_min_time=0
 view_min_time=0
 cs_time=0
+global_hashres_time = ""
 global_projection_time = ""
 global_min_time = ""
 global_from_time = ""

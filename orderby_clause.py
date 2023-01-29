@@ -259,5 +259,4 @@ def get_orderby_attributes():
 		reveal_globals.global_attrib_dict['order by'].sort()
 	#####################
 	print(orderby_list)
-	time.sleep(10)
 	return orderby_list

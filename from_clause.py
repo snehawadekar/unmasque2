@@ -73,7 +73,7 @@ def getCoreRelations(method = 'rename'):
 				if reveal_globals.global_db_engine != 'Microsoft SQL Server':
 					cur.execute('Alter table temp rename to ' + tabname + ';')
 				cur.close()
-				print("from - line 73") #aman
+				# print("from - line 73") #aman
 			except Exception as error:
 				print("Error Occurred in table extraction. Error: " + str(error))
 				exit(1)

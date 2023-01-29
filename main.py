@@ -640,31 +640,53 @@ def func_filter_Complete():
 
 
 def func_filter_start():
-	# print("inside:   reveal_proc_support.func_filter_start")
-	reveal_globals.local_start_time = time.time() #aman
-	reveal_globals.global_filter_predicates = where_clause.get_filter_predicates()
-	# print("where time: ", time.time() - reveal_globals.local_start_time) #aman
-	for elt in reveal_globals.global_filter_predicates:
-		predicate = ''
-		if elt[2].strip() == 'range':
-			if '-' in str(elt[4]):
-				predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
-			else:
-				predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
-		elif elt[2].strip() == '>=':
-			if '-' in str(elt[3]):
-				predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
-			else:
-				predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
-		elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
-			predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
-		else:
-			predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
-		if reveal_globals.global_where_op == '':
-			reveal_globals.global_where_op = predicate
-		else:
-			reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
-	func_filter_Complete()
+    # print("inside:   reveal_proc_support.func_filter_start")
+    reveal_globals.local_start_time = time.time() #aman
+    reveal_globals.global_filter_predicates = where_clause.get_filter_predicates()
+    # print("where time: ", time.time() - reveal_globals.local_start_time) #aman
+    for elt in reveal_globals.global_filter_predicates:
+        predicate = ''
+        if elt[2].strip() == 'range': 
+            if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
+                predicate = elt[1] + " between date"  + " '" + str(elt[3]) + "'" + " and date" + " '" + str(elt[4]) + "'"
+            # print(type(elt[4]))
+            elif '-' in str(elt[4]):
+                predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
+            else:
+                predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
+        elif elt[2].strip() == '>=':
+            if '-' in str(elt[3]):
+                predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+            else:
+                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+        elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
+            predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
+        else:
+            predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
+        if reveal_globals.global_where_op == '':
+            reveal_globals.global_where_op = predicate
+        else:
+            reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+    func_filter_Complete()
+
+
+def hash_result_comparator():
+    establishConnection()
+    extracted_query=reveal_globals.output1
+    res= executable.getExecOutput()
+    reveal_globals.local_start_time = time.time()
+    #call hash based result comparator
+    a=result_comparator.match(extracted_query,res)
+    reveal_globals.global_hashres_time = str(round(time.time() - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time +=round(time.time() - reveal_globals.local_start_time, 1)
+    # error_handler.restore_database_instance()
+    if(a):
+        print(" results Same")
+    else:
+        print("results different")
+    #     return render_template('page2.html',output_query=session["o_query"],input_query=session["i_query"],res_comp="Comparison Successful!!\n \n Output tables of Extracted Query and Hidden Query are Same.")
+    # else:
+    #     return render_template('page2.html',output_query=session["o_query"],input_query=session["i_query"],res_comp="Comparison Unsuccessful!!\n \n Output tables of Extracted Query and Hidden Query are Different.")
 
 
 
@@ -861,9 +883,29 @@ reveal_globals.correlated_sampling="yes"
 #level-2      
 # reveal_globals.minimizer="copy_based"
 reveal_globals.minimizer="view_based"
+  
+  
+
+#Queries [Level - 2]
+#kkk report Q1, simplified
+reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
+#Q2
+# reveal_globals.query1 = "Select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment From part, supplier, partsupp, nation, region Where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' Order by s_acctbal desc, n_name, s_name Limit 100;"
+#Q5
+# reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
+# Q4
+# reveal_globals.query1 = " Select o_orderdate, o_orderpriority, count(*) as order_count From orders Where o_orderdate >= date '1997-07-01' and o_orderdate < date '1997-07-01' + interval '3' month Group By o_orderkey, o_orderdate, o_orderpriority Order by o_orderpriority Limit 10; "
+# Q10
+# reveal_globals.query1 =" Select c_name,sum(l_extendedprice) as revenue, c_acctbal, n_name, c_address, c_phone, c_comment From customer, orders, lineitem, nation Where c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '3' month and l_returnflag = 'R' and c_nationkey = n_nationkey Group By c_name, c_acctbal, c_phone, n_name, c_address, c_comment Order by revenue desc Limit 20; "
+# Q16
+# group detected as only : Group By p_type, p_size
+# reveal_globals.query1 = " Select p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From partsupp, part Where p_partkey = ps_partkey and p_brand = 'Brand#45' and p_type Like 'SMALL PLATED%' and p_size >= 4 Group By p_brand, p_type, p_size Order by supplier_cnt desc, p_brand, p_type, p_size; "
+# run all tese queries and document extracted queries and their times
 
 
-reveal_globals.query1="select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name, p_partkey limit 100;"
+# Select l returnflag, l linestatus, sum(l quantity) as sum qty, sum(l extendedprice) as sum base price, sum(l extendedprice * (1 - l discount)) as sum disc price, sum(l extendedprice * (1 - l discount) * (1 + l tax)) as sum charge, avg(l quantity) as avg qty, avg(l extendedprice) as avg price, avg(l discount) as avg disc, count(*) as count order From lineitem Where l shipdate ≤ date ‘1998-12-01’ - interval ‘71 days’ Group By l returnflag, l linestatus Order by l returnflag, l linestatus;
+
+# reveal_globals.query1="select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name limit 100;"
 # reveal_globals.query1= "  select * from lineitem where l_partkey =67310 and l_orderkey =  5649094;"
 
 reveal_vp_start_gui()
@@ -874,18 +916,20 @@ print("Error:  ",reveal_globals.error)
 x="Used correlated sampling : "+reveal_globals.correlated_sampling+ " and Used "+reveal_globals.minimizer+" minimizer " 
 print(x) 
 error_handler.restore_database_instance
-reveal_support_init()
+# reveal_support_init()
+hash_result_comparator()
 
-
-print("From Clause Time : ", reveal_globals.global_from_time)
-print("total DB Minimizer Time : ", reveal_globals.global_min_time)
-print("---copy_min_time : ", reveal_globals.copy_min_time)
-print("---view_min_time : ", reveal_globals.view_min_time)
-print("---cs_time s: ", reveal_globals.cs_time)
-print("Join Clause Extr : ", reveal_globals.global_join_time)
-print("Filter Predicate Ext : ", reveal_globals.global_filter_time)
-print("Projection extractor : ", reveal_globals.global_projection_time)
-print("Group By : ", reveal_globals.global_groupby_time)
-print("Aggregate Time : ", reveal_globals.global_agg_time)
-print("Order By : ", reveal_globals.global_orderby_time)
-print("Limit : ", reveal_globals.global_limit_time)
+print("From Clause Time          : ", reveal_globals.global_from_time)
+print("total DB Minimizer Time   : ", reveal_globals.global_min_time)
+print("---copy_min_time          : ", reveal_globals.copy_min_time)
+print("---view_min_time          : ", reveal_globals.view_min_time)
+print("---cs_time s              : ", reveal_globals.cs_time)
+print("Join Clause Extr          : ", reveal_globals.global_join_time)
+print("Filter Predicate Ext      : ", reveal_globals.global_filter_time)
+print("Projection extractor      : ", reveal_globals.global_projection_time)
+print("Group By                  : ", reveal_globals.global_groupby_time)
+print("Aggregate Time            : ", reveal_globals.global_agg_time)
+print("Order By                  : ", reveal_globals.global_orderby_time)
+print("Limit                     : ", reveal_globals.global_limit_time)
+print("Hash result comparator    : ", reveal_globals.global_hashres_time)
+print("total extraction time     : ", reveal_globals.global_tot_ext_time)
