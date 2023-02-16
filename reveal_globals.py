@@ -100,6 +100,8 @@ global_index_dict = {}
 global_AoA = 0
 global_proj = []
 
+global_core_sizes = {}
+
 global_core_relations = []
 global_join_graph = []
 global_filter_predicates = []

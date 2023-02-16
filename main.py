@@ -68,6 +68,7 @@ import view_minimizer
 import copy_min
 import nep
 import aoa_pred
+import cs2_impr
 
 
 import psycopg2
@@ -87,9 +88,6 @@ def extracted_part_info():
 		  'ORDER BY':reveal_globals.global_orderby_op.strip(),\
 		  'LIMIT': reveal_globals.global_limit_op.strip()}
 
-
-
-
 def reveal_vp_start_gui():
     print("inside reveal.vp_start_gui")
     if 'windows' in str(platform.system()).lower():
@@ -98,10 +96,6 @@ def reveal_vp_start_gui():
         reveal_globals.global_os_name = 'linux'
     runreveal()
     # reveal_support_init()
-    
-
-
-
 
 def runreveal(*args):
     print("inside------reveal_support.runreveal")
@@ -117,7 +111,6 @@ def runreveal(*args):
     reveal_globals.global_proc_prev_screen = "inp"
     extractionStart()
  
-
 def getconn() :
     #change port 
     conn = psycopg2.connect(
@@ -147,7 +140,6 @@ def establishConnection():
     print("connected...")
     return True
    
-       
 
 def reveal_support_init():
     print("inside------reveal_support.init")   
@@ -255,8 +247,6 @@ def func_from_start():
         reveal_globals.global_from_op = reveal_globals.global_from_op + ", " + elt
     func_from_Complete()
 
-
-
 def func_from_Complete():
     print("inside:   reveal_proc_support.func_from_Complete")
     reveal_globals.local_end_time = time.time()
@@ -267,6 +257,7 @@ def func_from_Complete():
     # update_load()
     func_min_start()
 
+
 def func_min_start():
     # all_tables=[]
     # cur = reveal_globals.global_conn.cursor()
@@ -275,25 +266,33 @@ def func_min_start():
     # cur.close()
     # for i in temp:
     #     reveal_globals.global_all_relations.append(i[0])
+    
     for tabname in reveal_globals.global_all_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
         cur.execute("Alter table " + tabname + " rename to " + tabname + "_restore;")
-        cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
+        cur.execute("create table " + tabname + " (like " + tabname + "_restore);")
         cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
         cur.close()
+        
     print("inside:   reveal_proc_support.func_min_start")
     reveal_globals.local_start_time = time.time()
 	#INITIALIZATION
-
-    # use correlated sampling or not
-    if reveal_globals.correlated_sampling=="yes":
-        correlated_samp.correlated_sampling_start()
-        print("correlated sampling done!!!!!!")
-
     if not (initialization.initialization()):
         exit(1)
 
+
+    # use correlated sampling or not
+    # if reveal_globals.correlated_sampling=="yes":
+    #     correlated_samp.correlated_sampling_start()
+    #     print("correlated sampling done!!!!!!")
+    
+    x=time.time()
+    if reveal_globals.correlated_sampling=="yes":
+        cs2_impr.correlated_sampling_start()
+        print("correlated sampling done!!!!!!")
+    print("cs time====", time.time()-x)
+    
     print("reveal_globals.minimizer=",reveal_globals.minimizer)
     if reveal_globals.minimizer=="copy_based":
         if (copy_min.reduce_Database_Instance(reveal_globals.global_core_relations)):  #copy based minimizer
@@ -324,7 +323,6 @@ def func_min_start():
     #     reveal_globals.global_test_option = False
         # goToInitScreen()
 
-
 def func_min_Complete():
     print("inside:   reveal_proc_support.func_min_Complete")
     reveal_globals.local_end_time = time.time()
@@ -336,7 +334,6 @@ def func_min_Complete():
     func_join_start()
 
 
-
 def func_join_Complete():
     reveal_globals.local_end_time = time.time()
     reveal_globals.global_join_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
@@ -345,7 +342,6 @@ def func_join_Complete():
     reveal_globals.global_extracted_info_dict['filter'] = extracted_part_info()
     # update_load()
     func_filter_start()
-
 
 def func_join_start():
 	print("inside:   reveal_proc_support.func_join_start")
@@ -361,6 +357,7 @@ def func_join_start():
 				reveal_globals.global_where_op = reveal_globals.global_where_op + ' and ' + elt[0] + ' = ' + elt[i]
 	func_join_Complete()
 	
+ 
 def func_assemble_Complete():
     print("inside:   reveal_proc_support.func_assemble_Complete")
     reveal_globals.local_end_time = time.time()
@@ -372,8 +369,6 @@ def func_assemble_Complete():
     #time.sleep(50)
     # update_load()
     error_handler.restore_database_instance()
-
-
 
 def func_assemble_start():
     print("inside:   reveal_proc_support.func_assemble_start")
@@ -443,9 +438,6 @@ def func_limit_Complete():
     # update_load()
     # func_nep_start()
 
-    
-
-
 def func_limit_start():
 	print("inside:   reveal_proc_support.func_limit_start")
 	reveal_globals.local_start_time = time.time()
@@ -463,8 +455,6 @@ def func_orderby_Complete():
     reveal_globals.global_extracted_info_dict['limit'] = extracted_part_info()
     # update_load()
     func_limit_start()             
-
-
 
 def func_orderby_start():
 	print("inside:   reveal_proc_support.func_orderby_start")
@@ -489,7 +479,6 @@ def func_agg_Complete():
     reveal_globals.global_extracted_info_dict['order by'] = extracted_part_info()
     # update_load()
     func_orderby_start()
-
 
 def func_agg_start():
     print("inside:   reveal_proc_support.func_agg_start")
@@ -553,7 +542,6 @@ def refine_Query():
 			reveal_globals.global_select_op = reveal_globals.global_select_op + ", " + elt	
 	return
 
-
 def func_groupby_Complete():
     print("inside:   reveal_proc_support.func_groupby_Complete")
     reveal_globals.local_end_time = time.time()
@@ -587,7 +575,6 @@ def func_project_Complete():
     reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
     # update_load()
     func_groupby_start()
-
 
 def func_project_start():
 	print("inside:   reveal_proc_support.func_project_start")
@@ -888,11 +875,13 @@ reveal_globals.minimizer="view_based"
 
 #Queries [Level - 2]
 #kkk report Q1, simplified
-reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
+#results done
+# reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
 #Q2
+#results done
 # reveal_globals.query1 = "Select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment From part, supplier, partsupp, nation, region Where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' Order by s_acctbal desc, n_name, s_name Limit 100;"
 #Q5
-# reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
+reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
 # Q4
 # reveal_globals.query1 = " Select o_orderdate, o_orderpriority, count(*) as order_count From orders Where o_orderdate >= date '1997-07-01' and o_orderdate < date '1997-07-01' + interval '3' month Group By o_orderkey, o_orderdate, o_orderpriority Order by o_orderpriority Limit 10; "
 # Q10
