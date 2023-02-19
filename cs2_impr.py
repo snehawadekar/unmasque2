@@ -56,6 +56,7 @@ def correlated_sampling():
     
     temp_global_key_list= copy.deepcopy(reveal_globals.global_key_lists)
     seed_sample_size_per=1
+    
     not_sampled_tables=copy.deepcopy(reveal_globals.global_core_relations)
     
     for table in not_sampled_tables:
@@ -82,9 +83,10 @@ def correlated_sampling():
         # Sample base table      
         base_table = key_list[base_t][0]
         base_key=key_list[base_t][1]
+        limit_row= reveal_globals.global_core_sizes[ base_table ]
         cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        print("insert into "+ base_table +" select * from "+base_table+"_tmp tablesample system(" + str(seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from "+base_table+")  ;")
-        cur.execute("insert into "+ base_table +" select * from "+base_table+"_tmp tablesample system(" + str(seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from "+base_table+")  ;")
+        print("insert into "+ base_table +" select * from "+base_table+"_tmp tablesample system(" + str(seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from " + base_table +")  Limit " + limit_row + " ;")
+        cur.execute("insert into "+ base_table +" select * from "+base_table+"_tmp tablesample system(" + str(seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from "+ base_table +")  Limit " + limit_row + " ;")
         cur.close()
         # cur = reveal_globals.global_conn.cursor()
         # cur.execute("select count(*) from " + base_table + ";")
@@ -98,11 +100,13 @@ def correlated_sampling():
             print(i)
             tabname2 = key_list[i][0]
             key2 = key_list[i][1]
+            
             # if tabname2 in not_sampled_tables:
             if tabname2 != base_table:
+                limit_row= reveal_globals.global_core_sizes[ tabname2 ]
                 cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                print("insert into " + tabname2 + " select * from "+tabname2+"_tmp where " + key2 + " in (select distinct(" + base_key + ") from "+base_table+") and "+ key2 + " not in (select distinct("+key2+") from "+tabname2+") ;")
-                cur.execute("insert into " + tabname2 + " select * from "+tabname2+"_tmp where " + key2 + " in (select distinct(" + base_key + ") from " + base_table + ") and " + key2 + " not in (select distinct(" + key2 + ") from " + tabname2 + " ) ;")
+                print("insert into " + tabname2 + " select * from "+tabname2+"_tmp where " + key2 + " in (select distinct(" + base_key + ") from "+base_table+") and "+ key2 + " not in (select distinct("+key2+") from "+tabname2+") Limit " + limit_row + " ;")
+                cur.execute("insert into " + tabname2 + " select * from "+tabname2+"_tmp where " + key2 + " in (select distinct(" + base_key + ") from " + base_table + ") and " + key2 + " not in (select distinct(" + key2 + ") from " + tabname2 + " ) Limit " + limit_row + " ;")
                 cur.close()                    
                 # cur = reveal_globals.global_conn.cursor()
                 # cur.execute("select count(*) from " + tabname2 + ";")
