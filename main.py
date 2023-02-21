@@ -276,12 +276,12 @@ def func_min_start():
         cur.close()
         
     print("inside:   reveal_proc_support.func_min_start")
-    reveal_globals.local_start_time = time.time()
+    
 	#INITIALIZATION
     if not (initialization.initialization()):
         exit(1)
 
-
+    reveal_globals.local_start_time = time.time()
     # use correlated sampling or not
     # if reveal_globals.correlated_sampling=="yes":
     #     correlated_samp.correlated_sampling_start()
