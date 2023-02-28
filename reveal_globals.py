@@ -7,6 +7,7 @@ cs_time=0
 
 
 database_in_use='december'
+cs_status = ""
 
 query1=""
 output1=""

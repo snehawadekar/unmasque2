@@ -865,7 +865,7 @@ print("Error:  ", reveal_globals.error)
 x="Used correlated sampling : " + reveal_globals.correlated_sampling + " and Used " + reveal_globals.minimizer + " minimizer " 
 print(x) 
 
-error_handler.restore_database_instance()
+# error_handler.restore_database_instance()
 # reveal_support_init()
 hash_result_comparator()
 

@@ -39,14 +39,16 @@ def correlated_sampling_start():
             # cur.close()
             reveal_globals.cs_time = time.time() - start_time
             print("CS PASSED")
+            reveal_globals.cs_status = "PASS"
             return
 
     print("correlated samplin failed totally starting with halving based minimization")
+    reveal_globals.cs_status = "FAIL"
     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     for tabname in reveal_globals.global_core_relations:
-        # cur.execute("alter table " + table + "_restore rename to " + table + " ;")
-        cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
-        cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
+        cur.execute("alter table " + table + "_restore rename to " + table + " ;")
+        # cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
+        # cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
     cur.close()
     # cs sampling time
     reveal_globals.cs_time = time.time() - start_time
