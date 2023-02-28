@@ -46,16 +46,21 @@ def match(Q_E, res):
     # Header of r_h
     t = result[0]
     t1 = '(' + t[0]
+    
     for i in range(1,len(t)):
         t1 += ', ' + t[i]
     t1 += ')'
-
-    # Filling the table r_h
-    for i in range(1,len(result)):
+    if len(result) == 2:
         cur = reveal_globals.global_conn.cursor()
-        # result[i]= tuple(result[i][0])
-        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES '+str(result[i])+'; ')
+        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES ('+str(result[1][0])+'); ')
         cur.close()
+    else: 
+        # Filling the table r_h
+        for i in range(1,len(result)):
+            cur = reveal_globals.global_conn.cursor()
+            # result[i]= (result[i][0])
+            cur.execute('INSERT INTO r_h'+str(t1)+' VALUES '+str(result[i])+'; ')
+            cur.close()
 
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("select sum(hashtext) from (select hashtext(r_e::TEXT) FROM r_e) as T;")

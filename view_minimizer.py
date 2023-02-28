@@ -1,18 +1,8 @@
-#working correct last update :dec 10,2022
-
-
+# import check_nullfree
 import os
-import sys
-import csv
 import copy
-import math
 import executable
-sys.path.append('../') 
 import reveal_globals
-import psycopg2
-import Views
-import psycopg2.extras
-import operator
 import time
 import pandas as pd
 
@@ -33,18 +23,17 @@ def getCoreSizes(core_relations):
 
 
 
-#this view based minimizer is using row_id we donot want to use it. 
 def reduce_Database_Instance(core_relations, method = 'binary partition', max_no_of_rows = 1, executable_path = ""):
 	reveal_globals.local_other_info_dict = {}
 	#Perform sampling
 	#print(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter,"++++SAMPLING++++++++")
-	#core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
-	print("sneha here")
+	# core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
+	# print("sneha here")
 	# exit(0)
 	
 	core_sizes = getCoreSizes(core_relations)
 	start_time=time.time()
-	print("YES1")
+	# print("YES1")
 
 		
   
@@ -66,7 +55,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		min_ctid =cur.fetchone()
 		cur.close()
 		min_ctid = min_ctid[0]
-		print(min_ctid)
+		# print(min_ctid)
 		min_ctid2 = min_ctid.split(",")
 		start_page = int(min_ctid2[0][1:])
   
@@ -82,7 +71,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
   
 		start_ctid = min_ctid
 		end_ctid = max_ctid
-		print("start_page= ",start_page, "end page= ",end_page )
+		# print("start_page= ",start_page, "end page= ",end_page )
 		while (start_page < end_page-1):
 			mid_page=int((start_page + end_page)/2)
 			mid_ctid1 = "(" + str(mid_page) + ",1)"
@@ -95,11 +84,13 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			cur.close()
 
 			#Run query and analyze the result now
+			
+			# reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+			# cur = reveal_globals.global_conn.cursor()
+			# cur.execute('drop view '+ tabname + ';')
+			# cur.close()
+   
 			new_result = executable.getExecOutput()
-			reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('drop view '+ tabname + ';')
-			cur.close()
 			if len(new_result) <= 1:
 				#Take the lower half
 				start_ctid = mid_ctid2
@@ -107,12 +98,25 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 				#Take the upper half
 				end_ctid = mid_ctid1
 			# start_page=start_ctid[0]
+   
+			#UN+nf
+			# if check_nullfree.getExecOutput() == False:
+			# 	#Take the lower half
+			# 	start_ctid = mid_ctid2
+			# else:
+			# 	#Take the upper half
+			# 	end_ctid = mid_ctid1
+    
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute('drop view '+ tabname + ';')
+			cur.close()
+
 			start_ctid2 = start_ctid.split(",")
 			start_page = int(start_ctid2[0][1:])
 			end_ctid2 = end_ctid.split(",")
 			end_page = int(end_ctid2[0][1:])
-			print("start_page= ",start_page, "end page= ",end_page )
-			print(start_ctid, end_ctid)
+			# print("start_page= ",start_page, "end page= ",end_page )
+			# print(start_ctid, end_ctid)
 		cur = reveal_globals.global_conn.cursor()
   
 		# cur.execute('drop view '+ tabname + ';')
@@ -180,12 +184,13 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			cur.close()
 
 			#Run query and analyze the result now
-			new_result = executable.getExecOutput()
-			reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('drop view '+ tabname + ';')
-			cur.close()
+			
+			# reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+			# cur = reveal_globals.global_conn.cursor()
+			# cur.execute('drop view '+ tabname + ';')
+			# cur.close()
    
+			new_result = executable.getExecOutput()
 			if len(new_result) <= 1:
 				#Take the lower half
 				start_ctid = mid_ctid2
@@ -193,6 +198,21 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 				#Take the upper half
 				end_ctid = mid_ctid1
 			# start_page=start_ctid[0]
+   
+			#UN+nf
+			# if check_nullfree.getExecOutput() == False:
+			# 	#Take the lower half
+			# 	start_ctid = mid_ctid2
+			# else:
+			# 	#Take the upper half
+			# 	end_ctid = mid_ctid1
+    
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute('drop view '+ tabname + ';')
+			cur.close()
+   
+   
+   
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute("create table " + tabname + " as select * from "+ tabname +"1 where ctid >= '" + str(start_ctid) + "' and ctid <= '" + str(end_ctid) + "'  ; ")
 			cur.execute('drop table ' + tabname + '1 ;')
@@ -209,6 +229,12 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		if len(new_result) <= 1:
 			print("Error: Query out of extractable domain\n")
 			return False
+
+		#UN+nf
+		# if check_nullfree.getExecOutput() == False:
+		# 	print("Error: Query out of extractable domain\n")
+		# 	return False
+		
 	
     # create the tables from views 
 	# for tabname in reveal_globals.global_core_relations:
@@ -246,6 +272,10 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 	if len(new_result) <= 1:
 		print("Error: Query out of extractable domain\n")
 		return False
+	# if check_nullfree.getExecOutput() == False:
+	# 	print("Error: Query out of extractable domain\n")
+	# 	return False
+	
 	#populate screen data
 	#POPULATE MIN INSTANCE DICT
 	reveal_globals.view_min_time=time.time()-start_time
@@ -258,6 +288,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		for index, row in df.iterrows():
 			reveal_globals.global_min_instance_dict[tabname].append(tuple(row))
 	#populate other data
+	new_result=executable.getExecOutput()
 	reveal_globals.global_result_dict['min'] = copy.deepcopy(new_result)
 	reveal_globals.local_other_info_dict['Result Cardinality'] = str(len(new_result) - 1)
 	reveal_globals.global_other_info_dict['min'] = copy.deepcopy(reveal_globals.local_other_info_dict)

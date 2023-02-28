@@ -85,7 +85,7 @@ global_db_prev_screen = ""
 global_no_execCall = 0
 
 # global_support_files_path = "/services/app/support_files/"
-global_reduced_data_path = "C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNMASQUE-Web_backup-before-aoa_copy/reduced_data/"
+global_reduced_data_path = "C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNPlus_NullFree/reduced_data/"
 global_output_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./output/")
 global_input_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./input/")
 
@@ -100,8 +100,7 @@ global_index_dict = {}
 global_AoA = 0
 global_proj = []
 
-global_core_sizes = {}
-
+global_core_sizes ={}
 global_core_relations = []
 global_join_graph = []
 global_filter_predicates = []
@@ -135,3 +134,6 @@ global_join_instance_dict = {}
 global_component_dict = {}
 local_start_time = ''
 local_end_time = ''
+
+outer_join_flag = False
+seed_sample_size_per =1
