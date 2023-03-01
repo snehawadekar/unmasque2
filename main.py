@@ -859,15 +859,15 @@ reveal_globals.minimizer="view_based"
 input_q.get_input_query()
 reveal_vp_start_gui()
 
-op=reveal_globals.output1
-print(op)
-print("Error:  ", reveal_globals.error)
+# op=reveal_globals.output1
+# print(op)
+# print("Error:  ", reveal_globals.error)
 x="Used correlated sampling : " + reveal_globals.correlated_sampling + " and Used " + reveal_globals.minimizer + " minimizer " 
 print(x) 
 
 # error_handler.restore_database_instance()
 # reveal_support_init()
-hash_result_comparator()
+# hash_result_comparator()
 
 print("From Clause Time          : ", reveal_globals.global_from_time)
 print("total DB Minimizer Time   : ", reveal_globals.global_min_time)
@@ -881,5 +881,9 @@ print("Group By                  : ", reveal_globals.global_groupby_time)
 print("Aggregate Time            : ", reveal_globals.global_agg_time)
 print("Order By                  : ", reveal_globals.global_orderby_time)
 print("Limit                     : ", reveal_globals.global_limit_time)
-print("Hash result comparator    : ", reveal_globals.global_hashres_time)
+# print("Hash result comparator    : ", reveal_globals.global_hashres_time)
 print("total extraction time     : ", reveal_globals.global_tot_ext_time)
+
+hash_result_comparator()
+print("Hash result comparator                           : ", reveal_globals.global_hashres_time)
+print("total extraction time + hash comparison time     : ", reveal_globals.global_tot_ext_time)
