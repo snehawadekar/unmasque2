@@ -285,7 +285,8 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 	# print("sneha here")
 	# exit(0)
 	
-	core_sizes = getCoreSizes(core_relations)
+	# core_sizes = getCoreSizes(core_relations)
+	core_sizes =  reveal_globals.global_core_sizes
 	start_time=time.time()
 	# print("YES1")
 
