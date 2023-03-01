@@ -3,17 +3,7 @@ import sys
 
 # HAsh based result comparator
 def match(Q_E, res):
-    # res = hidden query results
-    # Q_E =  extracted query
-    # colnames=res[0]
-    
-    
-    # cur  = reveal_globals.global_conn.cursor()
-    # cur.execute(Q_E)
-    # colnames = [desc[0] for desc in cur.description]
-    # cur.close()
-    
-    
+        
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("create view r_e as "+ Q_E)
     cur.close()
@@ -25,33 +15,10 @@ def match(Q_E, res):
     
 
     
-    if(res1 != len(res) - 1):
+    if(res1 != (len(res) - 1)):
         return False
 
-    # cur = reveal_globals.global_conn.cursor()
-    # cur.execute(Q_E)
-    # # res = cur.fetchall()
-    
-    # cur.close()
-
-
     result = res
-    # result = []
-    # result.append(tuple(colnames))
-    # if res is not None:
-    #     for row in res:
-    #         #CHECK IF THE WHOLE ROW IN NONE (SPJA Case)
-    #         nullrow = True
-    #         for val in row:
-    #             if val != None:
-    #                 nullrow = False
-    #                 break
-    #         if nullrow == True:
-    #             continue
-    #         temp = []
-    #         for val in row:
-    #             temp.append(str(val))
-    #         result.append(tuple(temp))
     
     cur = reveal_globals.global_conn.cursor()
     cur.execute('Create unlogged table r_h (like r_e);')
