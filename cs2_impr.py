@@ -7,14 +7,26 @@ import psycopg2.extras
 # import check_nullfree
 
 def getCoreSizes_cs(core_relations):
-    core_sizes = {}
-    for table in core_relations:
-        cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute('select count(*) from ' + table + ';')
-        res = cur.fetchone()
-        cnt = int(str(res[0]))
-        core_sizes[table] = cnt
-    reveal_globals.global_core_sizes= core_sizes
+    # core_sizes = {}
+    # for table in core_relations:
+    #     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    #     cur.execute('select count(*) from ' + table + ';')
+    #     res = cur.fetchone()
+    #     cnt = int(str(res[0]))
+    #     core_sizes[table] = cnt
+    # reveal_globals.global_core_sizes= core_sizes
+    sf = 100
+    reveal_globals.global_core_sizes= {
+        'nation' : 25,
+        'region' :5,
+        'part' : 200000* sf,
+        'partsupp' : 800000 * sf,
+        'lineitem' : 6000000 * sf,
+        'orders' : 1500000 * sf,
+        'supplier' : 10000 * sf,
+        'customer' : 150000 * sf,
+        
+    }
 
 
 def correlated_sampling_start():
