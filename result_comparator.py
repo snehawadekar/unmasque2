@@ -3,15 +3,18 @@ import sys
 
 # HAsh based result comparator
 def match(Q_E, res):
-    res.pop(0)
-    cur  = reveal_globals.global_conn.cursor()
-    cur.execute(Q_E)
-    res1 = cur.fetchall()
-    cur.close()
+    # res.pop(0)
+    # cur  = reveal_globals.global_conn.cursor()
+    # cur.execute(Q_E)
+    # res1 = cur.fetchall()
+    # cur.close()
     
-    if(len(res1) != len(res)):
-        return False
+    # if(len(res1) != len(res)):
+    #     return False
 
+    res1=res
+    res1.pop(0)
+    
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("create view r_e as "+ Q_E)
     cur.close()
@@ -21,6 +24,9 @@ def match(Q_E, res):
     res = cur.fetchall()
     colnames = [desc[0] for desc in cur.description]
     cur.close()
+    
+    if(len(res1) != len(res)):
+        return False
 
     result = []
     result.append(tuple(colnames))
