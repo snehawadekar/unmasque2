@@ -32,12 +32,15 @@ def getCoreSizes(core_relations):
         'customer' : 150000 * sf,
         
     }
-	# return core_sizes
+    core_sizes = {}
+    for tabname in core_relations:
+        core_sizes[tabname] = reveal_globals.global_core_sizes[tabname]
+    return core_sizes
 
 def sample_Database_Instance(core_relations, sample_size_percent, sample_threshold, max_sample_iter, executable_path = ""):
     #get core sizes
-    # core_sizes = getCoreSizes(core_relations)
-    core_sizes = reveal_globals.global_core_sizes
+    core_sizes = getCoreSizes(core_relations)
+    
     #update other info dict
     for tabname in core_relations:
         reveal_globals.local_other_info_dict[u'Initial / Final Row Cardinality \u2014 Table ' + tabname] = str(core_sizes[tabname]) + " / 1"
