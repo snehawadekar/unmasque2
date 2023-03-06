@@ -49,22 +49,26 @@ def reduce_Database_Instance_cs_pass(core_relations, method = 'binary partition'
 		cur.close()
 
 		cur = reveal_globals.global_conn.cursor()
-		cur.execute('select min(ctid) from '+ tabname+'1; ')
-		min_ctid =cur.fetchone()
+		cur.execute('select min(ctid), max(ctid) from '+ tabname+'1; ')
+		rctid =cur.fetchone()
 		cur.close()
-		min_ctid = min_ctid[0]
+		min_ctid = rctid[0]
 		# print(min_ctid)
 		min_ctid2 = min_ctid.split(",")
 		start_page = int(min_ctid2[0][1:])
-  
-		cur = reveal_globals.global_conn.cursor()
-		cur.execute('select max(ctid) from '+ tabname+'1; ')
-		max_ctid =cur.fetchone()
-		cur.close()
-		max_ctid = max_ctid[0]
+		max_ctid = rctid[1]
 		print(max_ctid)
 		max_ctid2 = max_ctid.split(",")
 		end_page = int(max_ctid2[0][1:])
+  
+		# cur = reveal_globals.global_conn.cursor()
+		# cur.execute('select max(ctid) from '+ tabname+'1; ')
+		# max_ctid =cur.fetchone()
+		# cur.close()
+		# max_ctid = max_ctid[0]
+		# print(max_ctid)
+		# max_ctid2 = max_ctid.split(",")
+		# end_page = int(max_ctid2[0][1:])
 
   
 		start_ctid = min_ctid
@@ -306,27 +310,31 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 		cur.close()
 
 		cur = reveal_globals.global_conn.cursor()
-		cur.execute('select min(ctid) from '+ tabname+'_restore; ')
-		min_ctid =cur.fetchone()
+		cur.execute('select min(ctid), max(ctid) from '+ tabname+'_restore; ')
+		rctid =cur.fetchone()
 		cur.close()
-		min_ctid = min_ctid[0]
+		min_ctid = rctid[0]
 		# print(min_ctid)
 		min_ctid2 = min_ctid.split(",")
 		start_page = int(min_ctid2[0][1:])
-  
-		cur = reveal_globals.global_conn.cursor()
-		cur.execute('select max(ctid) from '+ tabname+'_restore; ')
-		max_ctid =cur.fetchone()
-		cur.close()
-		max_ctid = max_ctid[0]
+		max_ctid = rctid[1]
 		print(max_ctid)
 		max_ctid2 = max_ctid.split(",")
 		end_page = int(max_ctid2[0][1:])
+  
+		# cur = reveal_globals.global_conn.cursor()
+		# cur.execute('select max(ctid) from '+ tabname+'1; ')
+		# max_ctid =cur.fetchone()
+		# cur.close()
+		# max_ctid = max_ctid[0]
+		# print(max_ctid)
+		# max_ctid2 = max_ctid.split(",")
+		# end_page = int(max_ctid2[0][1:])
 
   
 		start_ctid = min_ctid
 		end_ctid = max_ctid
-		# print("start_page= ",start_page, "end page= ",end_page )
+		print("start_page= ",start_page, "end page= ",end_page )
 		while (start_page < end_page-1):
 			mid_page=int((start_page + end_page)/2)
 			mid_ctid1 = "(" + str(mid_page) + ",1)"
@@ -345,8 +353,11 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			# cur.execute('drop view '+ tabname + ';')
 			# cur.close()
    
-			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			# new_result = executable.getExecOutput()
+			new_result_flag = getExecOutput()
+
+			# if len(new_result) <= 1:
+			if new_result_flag == False: 
 				#Take the lower half
 				start_ctid = mid_ctid2
 			else:
@@ -370,8 +381,8 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			start_page = int(start_ctid2[0][1:])
 			end_ctid2 = end_ctid.split(",")
 			end_page = int(end_ctid2[0][1:])
-			# print("start_page= ",start_page, "end page= ",end_page )
-			# print(start_ctid, end_ctid)
+			print("start_page= ",start_page, "end page= ",end_page )
+			print(start_ctid, end_ctid)
 		cur = reveal_globals.global_conn.cursor()
   
 		# cur.execute('drop view '+ tabname + ';')
@@ -445,8 +456,11 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			# cur.execute('drop view '+ tabname + ';')
 			# cur.close()
    
-			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			# new_result = executable.getExecOutput()
+			new_result_flag = getExecOutput()
+
+			# if len(new_result) <= 1:
+			if new_result_flag == False: 
 				#Take the lower half
 				start_ctid = mid_ctid2
 			else:
@@ -480,31 +494,14 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			print("REMAINING TABLE SIZE", core_sizes[tabname])
 
 		#SANITY CHECK
-		new_result = executable.getExecOutput()
-		if len(new_result) <= 1:
+		# new_result = executable.getExecOutput()
+		new_result_flag = getExecOutput()
+
+		# if len(new_result) <= 1:
+		if new_result_flag == False: 
 			print("Error: Query out of extractable domain\n")
 			return False
 
-		#UN+nf
-		# if check_nullfree.getExecOutput() == False:
-		# 	print("Error: Query out of extractable domain\n")
-		# 	return False
-		
-	
-    # create the tables from views 
-	# for tabname in reveal_globals.global_core_relations:
-	# 	#Convert the view into table
-	# 	cur = reveal_globals.global_conn.cursor()
-	# 	cur.execute('Alter view ' + tabname + ' rename to temp;')
-	# 	cur.close()
-
-	# 	cur = reveal_globals.global_conn.cursor()
-	# 	cur.execute('create table ' + tabname + ' as Select * from temp;')
-	# 	cur.close()
-
-	# 	cur = reveal_globals.global_conn.cursor()
-	# 	cur.execute('Drop view temp; ')
-	# 	cur.close()
 
 
 	#WRITE TO Reduced Data Directory
@@ -522,7 +519,7 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 		cur.execute("create table " + tabname + "4 as select * from " + tabname + ";")
 		cur.close()
 		print(tabname, "==", res)
-	#SANITY CHECK
+	#SANITY CHECK 
 	new_result = executable.getExecOutput()
 	if len(new_result) <= 1:
 		print("Error: Query out of extractable domain\n")
@@ -550,3 +547,45 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 	return True	
 
 
+def getExecOutput():
+    # print("inside :-- executable.getExecOutput")
+    # result = []
+    try:
+        cur = reveal_globals.global_conn.cursor()
+        query=reveal_globals.query1
+        #print("query=",query)
+        reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+        cur.execute(query)
+        res = cur.fetchall() #fetchone always return a tuple whereas fetchall return list
+        #print(res)
+        # colnames = [desc[0] for desc in cur.description] 
+        cur.close()
+        # result.append(tuple(colnames))
+        #print(result) it will print 8 times for from clause 
+            #it will append attribute name in the result
+        if res is not None:
+            for row in res:
+                #CHECK IF THE WHOLE ROW IN NONE (SPJA Case)
+                nullrow = True
+                for val in row:
+                    if val != None:
+                        nullrow = False
+                        break
+                if nullrow == True:
+                    continue
+                else:
+                    return True
+                # original
+                # temp = []
+                # for val in row:
+                #     temp.append(str(val))
+                # result.append(tuple(temp))
+
+                # below chnages for cs2_impr
+
+
+    except Exception as error:
+        # reveal_globals.error='Unmasque Error: \n Executable could not be run. Error: ' +  dict(error.args[0])['M']
+        print('Executable could not be run. Error: ' + str(error))
+        raise error
+    return False

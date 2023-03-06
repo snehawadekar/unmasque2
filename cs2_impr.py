@@ -30,7 +30,7 @@ def getCoreSizes_cs(core_relations):
 
 
 def correlated_sampling_start():
-    itr=5
+    itr=3
     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     getCoreSizes_cs(reveal_globals.global_all_relations)
     
@@ -39,10 +39,11 @@ def correlated_sampling_start():
     cur.close()
     #restore original tables somewhere
     start_time=time.time()
+    reveal_globals.seed_sample_size_per = 0.00016 
     while itr>0:
         if correlated_sampling()== False:
             print('sampling failed in iteraation', itr)
-            reveal_globals.seed_sample_size_per = 0.16
+            reveal_globals.seed_sample_size_per *= 10
             itr = itr-1
         else:
             # cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -56,8 +57,8 @@ def correlated_sampling_start():
 
     print("correlated samplin failed totally starting with halving based minimization")
     reveal_globals.cs_status = "FAIL"
-    cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    for tabname in reveal_globals.global_core_relations:
+    cur = reveal_globals.global_conn.cursor()
+    for table in reveal_globals.global_core_relations:
         cur.execute("alter table " + table + "_restore rename to " + table + " ;")
         # cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
         # cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
@@ -125,10 +126,10 @@ def correlated_sampling():
             print("insert into "+ table +" select * from "+ table +"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ");")
             cur.execute("insert into "+ table +" select * from "+ table +"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ");")
             cur.close()
-            cur = reveal_globals.global_conn.cursor()
-            cur.execute("select count(*) from " + table + ";")
-            res = cur.fetchone()
-            print(table, res)
+            # cur = reveal_globals.global_conn.cursor()
+            # cur.execute("select count(*) from " + table + ";")
+            # res = cur.fetchone()
+            # print(table, res)
             
     for table in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()

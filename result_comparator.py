@@ -31,11 +31,17 @@ def match(Q_E, res):
         t1 += ', ' + t[i]
     t1 += ')'
 
-    # Filling the table r_h
-    for i in range(1,len(result)):
+
+    if len(result) == 2:
         cur = reveal_globals.global_conn.cursor()
-        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES'+str(result[i])+'; ')
+        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES ('+str(result[1][0])+'); ')
         cur.close()
+    else:
+    # Filling the table r_h
+        for i in range(1,len(result)):
+            cur = reveal_globals.global_conn.cursor()
+            cur.execute('INSERT INTO r_h'+str(t1)+' VALUES'+str(result[i])+'; ')
+            cur.close()
 
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("select sum(hashtext) from (select hashtext(r_e::TEXT) FROM r_e) as T;")

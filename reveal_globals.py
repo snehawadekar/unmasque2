@@ -18,6 +18,7 @@ error=""
 
 minimizer="view_based"
 correlated_sampling="no"
+mini_type = "kapil"
 #default minimizer: copy-based
 
 

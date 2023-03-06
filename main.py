@@ -270,29 +270,31 @@ def func_min_start():
         exit(1)
 
     reveal_globals.local_start_time = time.time()
-    # use correlated sampling or not
-    # if reveal_globals.correlated_sampling=="yes":
-    #     correlated_samp.correlated_sampling_start()
-    #     print("correlated sampling done!!!!!!")
-
-    # new correlated sampling technique
-    x=time.time()
-    if reveal_globals.correlated_sampling=="yes":
-        cs2_impr.correlated_sampling_start()
-        print("correlated sampling done!!!!!!")
-    print("cs time====", time.time()-x)
-
-    print("reveal_globals.minimizer=",reveal_globals.minimizer)
-    if reveal_globals.minimizer=="copy_based":
-        if (copy_min.reduce_Database_Instance(reveal_globals.global_core_relations)):  #copy based minimizer
-            func_min_Complete()
+    if reveal_globals.mini_type == "kapil":
+        if (db_minimizer.reduce_Database_Instance(reveal_globals.global_core_relations)):  #copy based minimizer
+                func_min_Complete()
         else:
             reveal_globals.global_test_option = False
-    elif reveal_globals.minimizer=="view_based":
-        if (view_minimizer.reduce_Database_Instance(reveal_globals.global_core_relations)):  #view based minimizer
-            func_min_Complete()
-        else:
-            reveal_globals.global_test_option = False
+        
+    else:
+        
+        x=time.time()
+        if reveal_globals.correlated_sampling=="yes":
+            cs2_impr.correlated_sampling_start()
+            print("correlated sampling done!!!!!!")
+        print("cs time====", time.time()-x)
+
+        print("reveal_globals.minimizer=",reveal_globals.minimizer)
+        if reveal_globals.minimizer=="copy_based":
+            if (copy_min.reduce_Database_Instance(reveal_globals.global_core_relations)):  #copy based minimizer
+                func_min_Complete()
+            else:
+                reveal_globals.global_test_option = False
+        elif reveal_globals.minimizer=="view_based":
+            if (view_minimizer.reduce_Database_Instance(reveal_globals.global_core_relations)):  #view based minimizer
+                func_min_Complete()
+            else:
+                reveal_globals.global_test_option = False
     
    
         # if (db_minimizer.reduce_Database_Instance3(reveal_globals.global_core_relations)):  #view based minimizer
@@ -846,6 +848,8 @@ if __name__=='__main__':
 reveal_support_init()
 dbcon.establishConnection()
 
+
+reveal_globals.mini_type = "kapil"
 # print("minimizer====",reveal_globals.minimizer)
 #level-1
 reveal_globals.correlated_sampling="yes"
