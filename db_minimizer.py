@@ -9,101 +9,115 @@ import reveal_globals
 import pandas as pd
 
 def getCoreSizes(core_relations):
-	core_sizes = {}
-	for tabname in core_relations:
-		try:
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('select count(*) from ' + tabname + ';')
-			res = cur.fetchone()
-			cur.close()
-			core_sizes[tabname] = int(str(res[0]))
-		except Exception as error:
-			print("Error in getting table Sizes. Error: " + str(error))
-	return core_sizes
+	# core_sizes = {}
+	# for tabname in core_relations:
+	# 	try:
+	# 		cur = reveal_globals.global_conn.cursor()
+	# 		cur.execute('select count(*) from ' + tabname + ';')
+	# 		res = cur.fetchone()
+	# 		cur.close()
+	# 		core_sizes[tabname] = int(str(res[0]))
+	# 	except Exception as error:
+	# 		print("Error in getting table Sizes. Error: " + str(error))
+   
+    sf = 100
+    reveal_globals.global_core_sizes= {
+        'nation' : 25,
+        'region' :5,
+        'part' : 200000* sf,
+        'partsupp' : 800000 * sf,
+        'lineitem' : 6000000 * sf,
+        'orders' : 1500000 * sf,
+        'supplier' : 10000 * sf,
+        'customer' : 150000 * sf,
+        
+    }
+	# return core_sizes
 
 def sample_Database_Instance(core_relations, sample_size_percent, sample_threshold, max_sample_iter, executable_path = ""):
-	#get core sizes
-	core_sizes = getCoreSizes(core_relations)
-	#update other info dict
-	for tabname in core_relations:
-		reveal_globals.local_other_info_dict[u'Initial / Final Row Cardinality \u2014 Table ' + tabname] = str(core_sizes[tabname]) + " / 1"
-	#SAMPLE TABLE WITH > sample_threshold ROWS TO sample_size ROWS (max size in each iteration)
-	temp_core_sizes = copy.deepcopy(core_sizes)
-	index_no = 20
-	while bool(temp_core_sizes):
-		temp_sample_size_percent = sample_size_percent
-		key_max = max(temp_core_sizes.keys(), key=(lambda k: temp_core_sizes[k]))
-		if temp_core_sizes[key_max] > sample_threshold:
-			for sample_iter in range(max_sample_iter):
-				tabname = key_max
-				temp_sample_size = math.floor((core_sizes[tabname] * temp_sample_size_percent)/100)
-				print("Sampling table " + tabname, flush = True)
-				cur = reveal_globals.global_conn.cursor()
-				cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
-				cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
-				cur.execute("Insert into " + tabname + " select * from " + tabname + "1 where random() < .1 limit " + str(temp_sample_size) + ";")
-				cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
-				for elt in reveal_globals.global_index_dict[tabname]:
-					index_flag = False
-					while index_flag == False:
-						try:
-							cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
-							index_flag = True
-						except:
-							index_no = index_no + 1
-					index_no = index_no + 1
-				cur.close()
-				#Run query and analyze the result now
-				new_result = executable.getExecOutput()
-				reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-				if len(new_result) <= 1:
-					if (sample_iter == max_sample_iter - 1):
-						print("Sampling failed for " + tabname + " after "  + str(max_sample_iter) + ' iterations. Going for a full copy now.')
-						cur = reveal_globals.global_conn.cursor()
-						cur.execute('drop table ' + tabname + ';')
-						cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
-						cur.execute("Insert into " + tabname + " select * from " + tabname + "1;")
-						cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
-						for elt in reveal_globals.global_index_dict[tabname]:
-							index_flag = False
-							while index_flag == False:
-								try:
-									cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
-									index_flag = True
-								except:
-									index_no = index_no + 1
-							index_no = index_no + 1
-						cur.close()
-					else:
-						cur = reveal_globals.global_conn.cursor()
-						cur.execute('drop table ' + tabname + ';')
-						cur.execute('alter table ' + tabname + '1 rename to ' + tabname + ';')
-						cur.close()
-						temp_sample_size_percent = temp_sample_size_percent + .2
-				else:
-					print("Sampled " + tabname + " successfully")
-					core_sizes[tabname] = temp_sample_size
-					break
-			del temp_core_sizes[key_max]
-		else: #Make a copy of the table
-			tabname = key_max
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
-			cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
-			cur.execute("Insert into " + tabname + " select * from " + tabname + "1;")
-			cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
-			for elt in reveal_globals.global_index_dict[tabname]:
-				index_flag = False
-				while index_flag == False:
-					try:
-						cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
-						index_flag = True
-					except:
-						index_no = index_no + 1
-					index_no = index_no + 1
-			cur.close()
-			del temp_core_sizes[key_max]
-	return core_sizes
+    #get core sizes
+    # core_sizes = getCoreSizes(core_relations)
+    core_sizes = reveal_globals.global_core_sizes
+    #update other info dict
+    for tabname in core_relations:
+        reveal_globals.local_other_info_dict[u'Initial / Final Row Cardinality \u2014 Table ' + tabname] = str(core_sizes[tabname]) + " / 1"
+    #SAMPLE TABLE WITH > sample_threshold ROWS TO sample_size ROWS (max size in each iteration)
+    temp_core_sizes = copy.deepcopy(core_sizes)
+    index_no = 20
+    while bool(temp_core_sizes):
+        temp_sample_size_percent = sample_size_percent
+        key_max = max(temp_core_sizes.keys(), key=(lambda k: temp_core_sizes[k]))
+        if temp_core_sizes[key_max] > sample_threshold:
+            for sample_iter in range(max_sample_iter):
+                tabname = key_max
+                temp_sample_size = math.floor((core_sizes[tabname] * temp_sample_size_percent)/100)
+                print("Sampling table " + tabname, flush = True)
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
+                cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
+                cur.execute("Insert into " + tabname + " select * from " + tabname + "1 where random() < .1 limit " + str(temp_sample_size) + ";")
+                cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
+                for elt in reveal_globals.global_index_dict[tabname]:
+                    index_flag = False
+                    while index_flag == False:
+                        try:
+                            cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
+                            index_flag = True
+                        except:
+                            index_no = index_no + 1
+                    index_no = index_no + 1
+                cur.close()
+                #Run query and analyze the result now
+                new_result = executable.getExecOutput()
+                reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+                if len(new_result) <= 1:
+                    if (sample_iter == max_sample_iter - 1):
+                        print("Sampling failed for " + tabname + " after "  + str(max_sample_iter) + ' iterations. Going for a full copy now.')
+                        cur = reveal_globals.global_conn.cursor()
+                        cur.execute('drop table ' + tabname + ';')
+                        cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
+                        cur.execute("Insert into " + tabname + " select * from " + tabname + "1;")
+                        cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
+                        for elt in reveal_globals.global_index_dict[tabname]:
+                            index_flag = False
+                            while index_flag == False:
+                                try:
+                                    cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
+                                    index_flag = True
+                                except:
+                                    index_no = index_no + 1
+                            index_no = index_no + 1
+                        cur.close()
+                    else:
+                        cur = reveal_globals.global_conn.cursor()
+                        cur.execute('drop table ' + tabname + ';')
+                        cur.execute('alter table ' + tabname + '1 rename to ' + tabname + ';')
+                        cur.close()
+                        temp_sample_size_percent = temp_sample_size_percent + .2
+                else:
+                    print("Sampled " + tabname + " successfully")
+                    core_sizes[tabname] = temp_sample_size
+                    break
+            del temp_core_sizes[key_max]
+        else: #Make a copy of the table
+            tabname = key_max
+            cur = reveal_globals.global_conn.cursor()
+            cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
+            cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
+            cur.execute("Insert into " + tabname + " select * from " + tabname + "1;")
+            cur.execute('alter table ' + tabname + ' add primary key(' + reveal_globals.global_pk_dict[tabname] + ');')
+            for elt in reveal_globals.global_index_dict[tabname]:
+                index_flag = False
+                while index_flag == False:
+                    try:
+                        cur.execute('create index ' + tabname + str(index_no) + ' ON ' + elt + ';')
+                        index_flag = True
+                    except:
+                        index_no = index_no + 1
+                    index_no = index_no + 1
+            cur.close()
+            del temp_core_sizes[key_max]
+    return core_sizes
 
 
 def reduce_Database_Instance(core_relations, method = 'binary partition', max_no_of_rows = 1, executable_path = ""):

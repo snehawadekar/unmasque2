@@ -646,10 +646,10 @@ def func_filter_start():
 def hash_result_comparator():
     dbcon.establishConnection()
     extracted_query=reveal_globals.output1
-    res= executable.getExecOutput()
+    # res= executable.getExecOutput()
     reveal_globals.local_start_time = time.time()
     #call hash based result comparator
-    a=result_comparator.match(extracted_query,res)
+    a=result_comparator.match(extracted_query)
     reveal_globals.global_hashres_time = str(round(time.time() - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time +=round(time.time() - reveal_globals.local_start_time, 1)
     # error_handler.restore_database_instance()
@@ -888,6 +888,6 @@ print("Limit                     : ", reveal_globals.global_limit_time)
 # print("Hash result comparator    : ", reveal_globals.global_hashres_time)
 print("total extraction time     : ", reveal_globals.global_tot_ext_time)
 
-hash_result_comparator()
-print("Hash result comparator                           : ", reveal_globals.global_hashres_time)
-print("total extraction time + hash comparison time     : ", reveal_globals.global_tot_ext_time)
+# hash_result_comparator()
+# print("Hash result comparator                           : ", reveal_globals.global_hashres_time)
+# print("total extraction time + hash comparison time     : ", reveal_globals.global_tot_ext_time)
