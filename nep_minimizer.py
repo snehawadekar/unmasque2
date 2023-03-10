@@ -47,83 +47,83 @@ def compare(res, new_result):
 
 def extractNEPValue():
     # check nep for every non-key attribute by changing its value to different s value and run the executable.
-        # If the output came out non- empty. It means that nep is present on that attribute with previous value.
-        attrib_types_dict = {}
-        for entry in reveal_globals.global_attrib_types:
-            attrib_types_dict[(entry[0], entry[1])] = entry[2]
+    # If the output came out non- empty. It means that nep is present on that attribute with previous value.
+    attrib_types_dict = {}
+    for entry in reveal_globals.global_attrib_types:
+        attrib_types_dict[(entry[0], entry[1])] = entry[2]
 
-        dummy_int = 2   
-        dummy_char = 65 # to avoid having space/tab
-        dummy_date = datetime.date(1000,1,1) 
-        filter_attrib_dict = {}
-        #get filter values and their allowed minimum and maximum value
-        for entry in reveal_globals.global_filter_predicates:
-            if len(entry) > 4 and 'like' not in entry[2].lower() and 'equal' not in entry[2].lower():
-                filter_attrib_dict[(entry[0], entry[1])] = (entry[3], entry[4])
-            else:
-                filter_attrib_dict[(entry[0], entry[1])] = entry[3]
+    dummy_int = 2   
+    dummy_char = 65 # to avoid having space/tab
+    dummy_date = datetime.date(1000,1,1) 
+    filter_attrib_dict = {}
+    #get filter values and their allowed minimum and maximum value
+    for entry in reveal_globals.global_filter_predicates:
+        if len(entry) > 4 and 'like' not in entry[2].lower() and 'equal' not in entry[2].lower():
+            filter_attrib_dict[(entry[0], entry[1])] = (entry[3], entry[4])
+        else:
+            filter_attrib_dict[(entry[0], entry[1])] = entry[3]
 
-        for i in range(len(reveal_globals.global_core_relations)):
-            tabname = reveal_globals.global_core_relations[i]
-            attrib_list = reveal_globals.global_all_attribs[i]
-            print(tabname)
-            filterAttribs = []
-            for attrib in attrib_list:
-                print(attrib)
-                if attrib not in reveal_globals.global_key_attributes:
-                    if 'date' in attrib_types_dict[(tabname, attrib)]:
-                        if (tabname, attrib) in filter_attrib_dict.keys():
-                            val = ("'" + str(min(filter_attrib_dict[(tabname, attrib)][0], filter_attrib_dict[(tabname, attrib)][1])) + "'")
-                        else:
-                            val = ("'" + str(dummy_date) + "'")
-
-                    elif('int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]):
-                        #check for filter (#MORE PRECISION CAN BE ADDED FOR NUMERIC#)
-                        if (tabname, attrib) in filter_attrib_dict.keys():
-                            val = (min(filter_attrib_dict[(tabname, attrib)][0], filter_attrib_dict[(tabname, attrib)][1]))
-                        else:
-                            val = (dummy_int) 
+    for i in range(len(reveal_globals.global_core_relations)):
+        tabname = reveal_globals.global_core_relations[i]
+        attrib_list = reveal_globals.global_all_attribs[i]
+        print(tabname)
+        filterAttribs = []
+        for attrib in attrib_list:
+            print(attrib)
+            if attrib not in reveal_globals.global_key_attributes:
+                if 'date' in attrib_types_dict[(tabname, attrib)]:
+                    if (tabname, attrib) in filter_attrib_dict.keys():
+                        val = ("'" + str(min(filter_attrib_dict[(tabname, attrib)][0], filter_attrib_dict[(tabname, attrib)][1])) + "'")
                     else:
-                        if (tabname, attrib) in filter_attrib_dict.keys():
-                            val = (filter_attrib_dict[(tabname, attrib)].replace('%', ''))
-                        else:
-                            val = (chr(dummy_char))
-                    print(val)
-                    cur = reveal_globals.global_conn.cursor()
-                    cur.execute("SELECT "+attrib +" FROM " + tabname +";")
-                    prev = cur.fetchone()
-                    print("Type of this prev",prev,type(prev))
-                    prev = prev[0]
-                    #prev = (''.join(map(str, prev)))
-                    cur.close()
-                    cur = reveal_globals.global_conn.cursor()
-                    if 'date' in attrib_types_dict[(tabname, attrib)]:
-                        cur.execute("UPDATE " + tabname + " SET " + attrib +" = " + val +";")
-                        print("UPDATE " + tabname + " SET " + attrib +" = " + val +";")
-                    elif('int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]):
-                        cur.execute("UPDATE " + tabname + " SET " + attrib +" = " + str(val) +";")
-                    else:
-                        cur.execute("UPDATE " + tabname + " SET " + attrib +" = '" + val +"';")        
-                    cur.close()
-                    new_result = executable.getExecOutput()
-                    reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-                    # To make decimal precision 
-                    
+                        val = ("'" + str(dummy_date) + "'")
 
-                    print(new_result,"yessssssss")
-                    if(len(new_result) > 1):
-                        if 'int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]:
-                            prev = "{0:.2f}".format(prev)
-                            prev = decimal.Decimal(prev)
-                        print("yes",prev)
-                        reveal_globals.local_other_info_dict['Conclusion'] = 'Filter predicate on ' + attrib +' with operator <>'
-                        reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
-                        filterAttribs.append((tabname, attrib, '<>', prev))
-                        reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + attrib +' <> '+ str(prev)
-                        reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict) 
-                        return filterAttribs
-                    
-        return False
+                elif('int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]):
+                    #check for filter (#MORE PRECISION CAN BE ADDED FOR NUMERIC#)
+                    if (tabname, attrib) in filter_attrib_dict.keys():
+                        val = (min(filter_attrib_dict[(tabname, attrib)][0], filter_attrib_dict[(tabname, attrib)][1]))
+                    else:
+                        val = (dummy_int) 
+                else:
+                    if (tabname, attrib) in filter_attrib_dict.keys():
+                        val = (filter_attrib_dict[(tabname, attrib)].replace('%', ''))
+                    else:
+                        val = (chr(dummy_char))
+                print(val)
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("SELECT "+attrib +" FROM " + tabname +";")
+                prev = cur.fetchone()
+                print("Type of this prev",prev,type(prev))
+                prev = prev[0]
+                #prev = (''.join(map(str, prev)))
+                cur.close()
+                cur = reveal_globals.global_conn.cursor()
+                if 'date' in attrib_types_dict[(tabname, attrib)]:
+                    cur.execute("UPDATE " + tabname + " SET " + attrib +" = " + val +";")
+                    print("UPDATE " + tabname + " SET " + attrib +" = " + val +";")
+                elif('int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]):
+                    cur.execute("UPDATE " + tabname + " SET " + attrib +" = " + str(val) +";")
+                else:
+                    cur.execute("UPDATE " + tabname + " SET " + attrib +" = '" + val +"';")        
+                cur.close()
+                new_result = executable.getExecOutput()
+                reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+                # To make decimal precision 
+                
+
+                print(new_result,"yessssssss")
+                if(len(new_result) > 1):
+                    if 'int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]:
+                        prev = "{0:.2f}".format(prev)
+                        prev = decimal.Decimal(prev)
+                    print("yes",prev)
+                    reveal_globals.local_other_info_dict['Conclusion'] = 'Filter predicate on ' + attrib +' with operator <>'
+                    reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
+                    filterAttribs.append((tabname, attrib, '<>', prev))
+                    reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + attrib +' <> '+ str(prev)
+                    reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict) 
+                    return filterAttribs
+    
+    return False
 
 def reduce_Database_Instance(core_relations, extractedQuery,method = 'binary partition', max_no_of_rows = 1, executable_path = ""):
     
