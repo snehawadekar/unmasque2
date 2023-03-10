@@ -5,7 +5,7 @@ copy_min_time=0
 view_min_time=0
 cs_time=0
 
-
+sf =1
 database_in_use='december'
 cs_status = ""
 

@@ -15,16 +15,16 @@ def getCoreSizes_cs(core_relations):
     #     cnt = int(str(res[0]))
     #     core_sizes[table] = cnt
     # reveal_globals.global_core_sizes= core_sizes
-    sf = 100
+    reveal_globals.sf 
     reveal_globals.global_core_sizes= {
         'nation' : 25,
         'region' :5,
-        'part' : 200000* sf,
-        'partsupp' : 800000 * sf,
-        'lineitem' : 6000000 * sf,
-        'orders' : 1500000 * sf,
-        'supplier' : 10000 * sf,
-        'customer' : 150000 * sf,
+        'part' : 200000* reveal_globals.sf ,
+        'partsupp' : 800000 * reveal_globals.sf ,
+        'lineitem' : 6000000 * reveal_globals.sf ,
+        'orders' : 1500000 * reveal_globals.sf ,
+        'supplier' : 10000 * reveal_globals.sf ,
+        'customer' : 150000 * reveal_globals.sf ,
         
     }
 
@@ -39,7 +39,9 @@ def correlated_sampling_start():
     cur.close()
     #restore original tables somewhere
     start_time=time.time()
-    reveal_globals.seed_sample_size_per = 0.00016 
+    
+    
+    reveal_globals.seed_sample_size_per = 0.16 / reveal_globals.sf
     while itr>0:
         if correlated_sampling()== False:
             print('sampling failed in iteraation', itr)
@@ -97,12 +99,21 @@ def correlated_sampling():
         # Sample base table      
         base_table = key_list[base_t][0]
         base_key=key_list[base_t][1]
+        # n = reveal_globals.sf  * 1000
+        # cnt = reveal_globals.global_core_sizes[base_table]
+        # ssr = (n/cnt)*100
+        # ssr = 0.16 / reveal_globals.sf
+        # r= reveal_globals.global_core_sizes[base_table] * 0.01
         # limit_row= 0.5 * reveal_globals.global_core_sizes[ base_table ]
         limit_row= reveal_globals.global_core_sizes[ base_table ]
         cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         print("insert into "+ base_table +" select * from "+base_table+"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from " + base_table +")  Limit " + str(limit_row) + " ;")
-        cur.execute("insert into "+ base_table +" select * from "+base_table+"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from "+ base_table +")  Limit " + str(limit_row) + " ;")
+        cur.execute("insert into "+ base_table +" select * from "+base_table+"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ") where ("+base_key+") not in (select distinct("+base_key+") from "+ base_table +")  Limit " + str(limit_row) + " ;")        
         cur.close()
+        cur = reveal_globals.global_conn.cursor()
+        cur.execute("select count(*) from " + base_table + ";")
+        res = cur.fetchone()
+        print(table, res)
         
         # sample remaining tables from key_list using the sampled base table
         for i in range(0,len(key_list)):
@@ -117,8 +128,12 @@ def correlated_sampling():
                 cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 print("insert into " + tabname2 + " select * from "+tabname2+"_restore where " + key2 + " in (select distinct(" + base_key + ") from "+base_table+") and "+ key2 + " not in (select distinct("+key2+") from "+tabname2+") Limit " + str(limit_row) + " ;")
                 cur.execute("insert into " + tabname2 + " select * from "+tabname2+"_restore where " + key2 + " in (select distinct(" + base_key + ") from " + base_table + ") and " + key2 + " not in (select distinct(" + key2 + ") from " + tabname2 + " ) Limit " + str(limit_row) + " ;")
-                cur.close()         
-                
+                cur.close()  
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("select count(*) from " + tabname2 + ";")
+                res = cur.fetchone()
+                print(table, res)       
+                    
             
     if len(temp_global_key_list) == 0:
         for table in not_sampled_tables:
@@ -126,10 +141,10 @@ def correlated_sampling():
             print("insert into "+ table +" select * from "+ table +"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ");")
             cur.execute("insert into "+ table +" select * from "+ table +"_restore tablesample system(" + str(reveal_globals.seed_sample_size_per) + ");")
             cur.close()
-            # cur = reveal_globals.global_conn.cursor()
-            # cur.execute("select count(*) from " + table + ";")
-            # res = cur.fetchone()
-            # print(table, res)
+            cur = reveal_globals.global_conn.cursor()
+            cur.execute("select count(*) from " + table + ";")
+            res = cur.fetchone()
+            print(table, res)
             
     for table in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
