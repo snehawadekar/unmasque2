@@ -1,17 +1,20 @@
 import reveal_globals
-import sys
+import time
 
 # HAsh based result comparator
 def match(Q_E):
         
+    st=time.time()
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("create view r_e as "+ Q_E)
     cur.close()
+    print("line 11  --   ", time.time() - st)
     
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("Select count(*) from r_e")
     res1 = cur.fetchone()[0]
     cur.close()
+    print("line 17  --   ",time.time() - st)
  
  
     query=reveal_globals.query1
@@ -23,6 +26,7 @@ def match(Q_E):
     #print(res)
     colnames = [desc[0] for desc in cur.description] 
     cur.close()
+    print("line 29  --   ", time.time() - st)
     
     if(res1 != (len(res))):
         return False
@@ -35,6 +39,7 @@ def match(Q_E):
     cur = reveal_globals.global_conn.cursor()
     cur.execute('Create unlogged table r_h (like r_e);')
     cur.close()
+    print("line 42  --   ", time.time() - st)
  
     # Header of r_h
     t = result[0]
@@ -43,7 +48,7 @@ def match(Q_E):
         t1 += ', ' + t[i]
     t1 += ')'    
         
-    if len(res) == 1:
+    if len(res) == 1 and len(res[0]) == 1:
         if res is not None:
             for row in res:
                 #CHECK IF THE WHOLE ROW IN NONE (SPJA Case)
@@ -59,8 +64,8 @@ def match(Q_E):
                     temp.append(str(val))
                 ins = (tuple(temp))
                 cur = reveal_globals.global_conn.cursor()
-        cur.execute('INSERT INTO r_h'+str(t1)+' VALUES ('+str(ins[0])+'); ')
-        cur.close()
+                cur.execute('INSERT INTO r_h'+str(t1)+' VALUES ('+str(ins[0])+'); ')
+                cur.close()
         
     else:
         if res is not None:
@@ -81,6 +86,7 @@ def match(Q_E):
                 cur.execute('INSERT INTO r_h'+str(t1)+' VALUES'+str(ins)+'; ')
                 cur.close()
 
+    print("line 89  --   ", time.time() - st)
 
     
     
@@ -99,16 +105,19 @@ def match(Q_E):
     cur.execute("select sum(hashtext) from (select hashtext(r_e::TEXT) FROM r_e) as T;")
     len1 = cur.fetchone()[0]
     cur.close()
+    print("line 108  --   ", time.time() - st)
 
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("select sum(hashtext) from (select hashtext(r_h::TEXT) FROM r_h) as T;")
     len2 = cur.fetchone()[0]
     cur.close()
+    print("line 114  --   ", time.time() - st)
 
     cur = reveal_globals.global_conn.cursor()
     cur.execute('DROP view r_e;')
     cur.execute('DROP TABLE r_h;')
     cur.close()
+    print("line 120  --   ", time.time() - st)
     if(len1 == len2):
         return True
     else:

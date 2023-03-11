@@ -850,6 +850,8 @@ dbcon.establishConnection()
 
 
 reveal_globals.mini_type = "no-kapil"
+# reveal_globals.mini_type = "kapil"
+
 # print("minimizer====",reveal_globals.minimizer)
 #level-1
 reveal_globals.correlated_sampling="yes"

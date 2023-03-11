@@ -18,11 +18,12 @@ import random
 
 
 def getCoreSizes(core_relations):
+    # chnage this for 100GB 
 	core_sizes = {}
 	for tabname in core_relations:
 		try:
 			cur = reveal_globals.global_conn.cursor()
-			cur.execute('select count(*) from ' + tabname + '1;')
+			cur.execute('select count(*) from ' + tabname + '_restore;')
 			res = cur.fetchone()
 			cur.close()
 			core_sizes[tabname] = int(str(res[0]))
@@ -309,7 +310,7 @@ def nep_db_minimizer(tabname,Q_E,core_sizes,partition_dict,i):
 
     # Make a view of name x with first half  T <- T_u
     cur = reveal_globals.global_conn.cursor()
-    cur.execute('create view ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0])) + ' limit ' + str(int(partition_dict[1]/2)) + ';')
+    cur.execute('create view ' + tabname + ' as select * from '+ tabname +'_restore order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0])) + ' limit ' + str(int(partition_dict[1]/2)) + ';')
     cur.close()
 
 
@@ -323,7 +324,7 @@ def nep_db_minimizer(tabname,Q_E,core_sizes,partition_dict,i):
         
         # Make a view of name x with second half  T <- T_l
         cur = reveal_globals.global_conn.cursor()
-        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
+        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'_restore order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
         cur.close()
        
         #Run the hidden query on this updated database instance with table T_l
@@ -343,75 +344,7 @@ def nep_db_minimizer(tabname,Q_E,core_sizes,partition_dict,i):
 
         #Make a view of name x with second half  T <- T_l
         cur = reveal_globals.global_conn.cursor()
-        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
-        cur.close()
-
-        #Run the hidden query on this updated database instance with table T_u
-        new_result = executable.getExecOutput()
-        reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-    
-
-        if(match(Q_E,new_result) == False):
-            Q_E_ = nep_db_minimizer(tabname,Q_E, int(partition_dict[1]) - int(partition_dict[1]/2), ( int(partition_dict[0]) + int(partition_dict[1]/2), int(partition_dict[1]) - int(partition_dict[1]/2)),i)
-            return Q_E_
-        else:
-            return Q_E
-
-
-def nep_db_minimizer1(tabname,Q_E,core_sizes,partition_dict,i): 
-    #Run the hidden query on this updated database instance with table T_u
-    print("HELLO",core_sizes)
-    new_result = executable.getExecOutput()
-    reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-
-    #Base Case
-    if(core_sizes == 1 and match(Q_E,new_result) == False):
-        print("YES FOUND")
-        return updatedExtractedQuery(tabname,Q_E,i)   
-    
-    # Drop the current table of name tabname
-    cur = reveal_globals.global_conn.cursor()
-    cur.execute("drop table "+tabname+ ";")
-    cur.close()
-
-
-    # Make a table of name x with first half  T <- T_u
-    cur = reveal_globals.global_conn.cursor()
-    cur.execute('create table ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0])) + ' limit ' + str(int(partition_dict[1]/2)) + ';')
-    cur.close()
-
-
-    if(match(Q_E,new_result) == False):
-        Q_E_ = nep_db_minimizer(tabname,Q_E, int(partition_dict[1]/2), (int(partition_dict[0]), int(partition_dict[1]/2)),i)
-
-        # Drop the table of name tabname
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("drop table "+tabname+ ";")
-        cur.close()
-        
-        # Make a table of name x with second half  T <- T_l
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute('create table ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
-        cur.close()
-       
-        #Run the hidden query on this updated database instance with table T_l
-        new_result = executable.getExecOutput()
-        reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-
-        if(match(Q_E_,new_result) == False):
-            Q_E__ = nep_db_minimizer(tabname,Q_E_, int(partition_dict[1]) - int(partition_dict[1]/2), (int(partition_dict[0]) + int(partition_dict[1]/2), int(partition_dict[1]) - int(partition_dict[1]/2)), i)
-            return Q_E__
-        else:
-            return Q_E_
-    else:
-        # Drop the table of name tabname
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("drop table "+tabname+ ";")
-        cur.close()
-
-        #Make a table of name x with second half  T <- T_l
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute('create table ' + tabname + ' as select * from '+ tabname +'1 order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
+        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'_restore order by ' + reveal_globals.global_pk_dict[tabname] + ' offset ' + str(int(partition_dict[0]) + int(partition_dict[1]/2)) + ' limit ' + str(int(partition_dict[1]) - int(partition_dict[1]/2)) + ';')
         cur.close()
 
         #Run the hidden query on this updated database instance with table T_u
@@ -438,7 +371,7 @@ def nep_algorithm(core_relations, Q_E):
     for tabname in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute('drop table ' + tabname + ';')
-        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'1;')
+        cur.execute('create view ' + tabname + ' as select * from '+ tabname +'_restore;')
         cur.close()
 
     # Run the hidden query on the original database instance
