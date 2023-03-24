@@ -4,7 +4,7 @@ def get_input_query():
     
     # --------------U1
     # Q1
-    reveal_globals.query1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_discount) as sum_disc_price, sum(l_tax) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - interval '71 days' group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;"
+    # reveal_globals.query1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_discount) as sum_disc_price, sum(l_tax) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - interval '71 days' group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;"
     # Q2
     # reveal_globals.query1 = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name limit 100;"
     # Q3
@@ -130,7 +130,7 @@ def get_input_query():
     # reveal_globals.query1 = "select l_orderkey from lineitem where l_commitdate >= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22' and l_linenumber<>100;" #Q12
 
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem where o_orderkey = l_orderkey and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01';"
-    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber;"
+    reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber;"
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber;"
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22';"
     # reveal_globals.query1 = "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate >= l1.l_commitdate and s_nationkey = n_nationkey group by s_name order by numwait desc, s_name limit 100;" #Q21
@@ -147,7 +147,7 @@ def get_input_query():
     # reveal_globals.query1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_discount) as sum_disc_price, sum(l_tax) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' and l_linestatus <> 'F' Group by l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
     # reveal_globals.query1 ="select * from lineitem where l_orderkey >= -100 and l_orderkey <= 100;"
     # reveal_globals.query1 = "select age from x where marks <= 90 intersect select y_age from y where y_marks> 30;"
-    #Join with AoA
+    # Join with AoA
     # reveal_globals.query1 = "select count(*) from customer, orders where c_custkey = o_custkey;" # tried dec18 where clause didnot get extracted
     # reveal_globals.query1 = "select * from customer, orders, lineitem where c_custkey = o_custkey and o_orderkey = l_orderkey limit 10;"
     # reveal_globals.query1 = "select * from customer, orders, lineitem, nation where c_custkey = o_custkey and o_orderkey = l_orderkey and n_nationkey = c_nationkey limit 10;"

@@ -598,6 +598,31 @@ def func_aoa_start():
     # reveal_globals.local_start_time = time.time() #aman
     # reveal_globals.global_filter_predicates = aoa_pred.extract_aoa() #referenced aoa_pred.extract_aoa
     aoa_pred.extract_aoa() 
+    
+    for elt in (reveal_globals.global_filter_aoa + reveal_globals.global_filter_aeq) :
+        predicate = ''
+        if elt[2].strip() == 'range': 
+            if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
+                predicate = elt[1] + " between date"  + " '" + str(elt[3]) + "'" + " and date" + " '" + str(elt[4]) + "'"
+            # print(type(elt[4]))
+            elif '-' in str(elt[4]):
+                predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
+            else:
+                predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
+        elif elt[2].strip() == '>=':
+            if '-' in str(elt[3]):
+                predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+            else:
+                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+        elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
+            predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
+        else:
+            predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
+        if reveal_globals.global_where_op == '':
+            reveal_globals.global_where_op = predicate
+        else:
+            reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+    
     # print("AoA pred time: ", time.time() - reveal_globals.local_start_time) #aman
     # print(reveal_globals.global_filter_aoa)
     func_aoa_Complete()
@@ -621,29 +646,29 @@ def func_filter_start():
     reveal_globals.local_start_time = time.time() #aman
     reveal_globals.global_filter_predicates = where_clause.get_filter_predicates()
     # print("where time: ", time.time() - reveal_globals.local_start_time) #aman
-    for elt in reveal_globals.global_filter_predicates:
-        predicate = ''
-        if elt[2].strip() == 'range': 
-            if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
-                predicate = elt[1] + " between date"  + " '" + str(elt[3]) + "'" + " and date" + " '" + str(elt[4]) + "'"
-            # print(type(elt[4]))
-            elif '-' in str(elt[4]):
-                predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
-            else:
-                predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
-        elif elt[2].strip() == '>=':
-            if '-' in str(elt[3]):
-                predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
-            else:
-                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
-        elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
-            predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
-        else:
-            predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
-        if reveal_globals.global_where_op == '':
-            reveal_globals.global_where_op = predicate
-        else:
-            reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+    # for elt in reveal_globals.global_filter_predicates:
+    #     predicate = ''
+    #     if elt[2].strip() == 'range': 
+    #         if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
+    #             predicate = elt[1] + " between date"  + " '" + str(elt[3]) + "'" + " and date" + " '" + str(elt[4]) + "'"
+    #         # print(type(elt[4]))
+    #         elif '-' in str(elt[4]):
+    #             predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
+    #         else:
+    #             predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
+    #     elif elt[2].strip() == '>=':
+    #         if '-' in str(elt[3]):
+    #             predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+    #         else:
+    #             predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+    #     elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
+    #         predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
+    #     else:
+    #         predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
+    #     if reveal_globals.global_where_op == '':
+    #         reveal_globals.global_where_op = predicate
+    #     else:
+    #         reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
     func_filter_Complete()
 
 def hash_result_comparator():
