@@ -51,8 +51,8 @@ def extract_aoa():
     for tab in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute('Drop table if exists new_' + tab + ';') 
-        cur.execute('Create unlogged table new_' + tab + ' (like ' + tab + ');')
-        cur.execute('Insert into new_' + tab + ' select * from ' + tab + ';')
+        cur.execute('Create unlogged table new_' + tab + ' (like ' + tab + '4);')
+        cur.execute('Insert into new_' + tab + ' select * from ' + tab + '4;')
         cur.execute('alter table new_' + tab + ' add primary key(' + reveal_globals.global_pk_dict[tab] + ');')
         cur.close()
     reveal_globals.local_start_time = time.time() #aman
@@ -110,10 +110,11 @@ def extract_aoa():
     start_time = time.time()
     for pred in C:
         print("Step 1")
-        chk = 0
+        # chk = 0
         pos_e = []
         if pred[2] == '=':
             for c in cols:
+                chk = 0
                 if c[1] == pred[1]:
                     continue
                 # SQL QUERY for checking value
@@ -169,10 +170,10 @@ def extract_aoa():
                         pos_le.append(c)
                 elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:#sneha
                     val = int(prev) #for INT type
-                    if pred[3] == val+1:
+                    if int(pred[3]) == val+1:
                         chk2 = 1
                         pos_l.append(c)
-                    elif pred[3] == val:
+                    elif int(pred[3]) == val:
                         # print("------------------------------")
                         chk1 = 1
                         pos_le.append(c)
@@ -221,12 +222,12 @@ def extract_aoa():
                         pos_g.append(c)
                 elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                     val = int(prev) #for INT type
-                    if pred[3] == val-1:
+                    if int(pred[3]) == val-1:
                         chk4 = 1
                         pos_g.append(c)
-                elif pred[3] == val:
-                    chk3 = 1
-                    pos_ge.append(c)
+                    elif int(pred[3]) == val:
+                        chk3 = 1
+                        pos_ge.append(c)
             if chk3 == 1:
                 print("pos_ge", pos_ge)
                 isAoA = ainea(0, 0, pred[0], pred[1], pos_ge, '>=')
@@ -504,8 +505,7 @@ def extract_aoa():
         cur = reveal_globals.global_conn.cursor()
         cur.execute('Drop table if exists new_' + tab + ';') 
         cur.close()
-
-
+        
     return
 
 #referenced only in extract_aoa

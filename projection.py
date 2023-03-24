@@ -30,6 +30,7 @@ def is_int(s):
 
 
 def getProjectedAttributes():
+    # reveal_globals.global_filter_predicates = reveal_globals.global_proj # donot include this line for UN1
     print("inside -- projection.getProjectedAttributes")
     attrib_types_dict = {}
     for entry in reveal_globals.global_attrib_types:
@@ -54,7 +55,13 @@ def getProjectedAttributes():
         if 'char' in attrib_types_dict[(entry[0],entry[1])] or 'text' in attrib_types_dict[(entry[0], entry[1])]:
             value_used.append(entry[3].replace('%', ''))
         else:
+            # if entry[2] == '>=':
+            #     value_used.append(entry[3])
+            # elif entry[2] == '<=':
+            #     value_used.append(entry[4])
+            # else:
             value_used.append(entry[3])
+                
     for elt in reveal_globals.global_join_graph:
         while dummy_int in value_used:
             dummy_int = dummy_int + 1
@@ -104,6 +111,7 @@ def getProjectedAttributes():
         att_order=att_order[:-1]
         att_order+=')'
         cur = reveal_globals.global_conn.cursor()
+        print("INSERT INTO " + tabname + att_order + " VALUES " + esc_string, insert_values)
         cur.execute("INSERT INTO " + tabname + att_order + " VALUES " + esc_string, insert_values)
         #conn.commit()
         cur.close()
@@ -142,7 +150,8 @@ def getProjectedAttributes():
                     projectedAttrib.append('')
 
 
-            elif val2.replace('.','',1).isdigit() :
+            # elif val2.replace('.','',1).isdigit() :
+            else:
                 # print("float(val)-int(val)	:",float(val)-int(val))
                 new_val=str(float(val))
                 if new_val in value_used and (any(value_used[value_used.index(new_val) - 1] in i for i in reveal_globals.global_filter_predicates)):

@@ -644,6 +644,8 @@ def get_filter_predicates():
 	attrib_max_length = copy.deepcopy(reveal_globals.global_attrib_max_length)
 	for entry in reveal_globals.global_attrib_types:
 		attrib_types_dict[(entry[0], entry[1])] = entry[2]
+		#aoa change
+		reveal_globals.global_attrib_types_dict[(entry[0], entry[1])] = entry[2]
 	result_pos = 0
 	for i in range(len(reveal_globals.global_core_relations)):
 		tabname = reveal_globals.global_core_relations[i]
