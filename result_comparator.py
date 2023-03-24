@@ -127,7 +127,8 @@ def match(Q_E):
 
 
 def match_comparison_based(Q_E):
-    global tim 
+    global tim
+    start_result_generator_time = time.time()
     start_time = time.time()
     # Run the extracted query Q_E .
     cur  = reveal_globals.global_conn.cursor()
@@ -213,6 +214,11 @@ def match_comparison_based(Q_E):
     #     cur.close()
 
    
+    result_generation_time = time.time() - start_result_generator_time
+    
+    print("Result generation time :   ", result_generation_time )
+    
+    start_res_comp_time = time.time()
     cur  = reveal_globals.global_conn.cursor()
     cur.execute('select count(*) from (select * from temp1 except all select * from temp2) as T;')
     len1 = cur.fetchone()
@@ -233,6 +239,9 @@ def match_comparison_based(Q_E):
     cur = reveal_globals.global_conn.cursor()
     cur.execute("drop table temp2;")
     cur.close()
+    
+    result_comp_time = time.time() - start_res_comp_time
+    print("Result Comparison Time : ", result_comp_time )
     
     if(len1 == 0 and len2 == 0):
         return True
