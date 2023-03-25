@@ -381,39 +381,39 @@ def func_assemble_start():
     func_assemble_Complete()  #changes made here0
 
 #### start----  additions for nep
-# def extractedQ():
-# 	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
-# 	if reveal_globals.global_where_op.strip() != '':
-# 		query = query + "\n" + "Where " + reveal_globals.global_where_op
-# 	if reveal_globals.global_groupby_op.strip() != '':
-# 		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
-# 	if reveal_globals.global_orderby_op.strip() != '':
-# 		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
-# 	if reveal_globals.global_limit_op.strip() != '':
-# 		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
-# 	query = query + ";"
-# 	return query	
+def extractedQ():
+	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
+	if reveal_globals.global_where_op.strip() != '':
+		query = query + "\n" + "Where " + reveal_globals.global_where_op
+	if reveal_globals.global_groupby_op.strip() != '':
+		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
+	if reveal_globals.global_orderby_op.strip() != '':
+		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
+	if reveal_globals.global_limit_op.strip() != '':
+		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
+	query = query + ";"
+	return query	
 
-# def func_nep_start():
-#     global w, root
-#     Q_E = extractedQ()
-#     reveal_globals.local_start_time = time.time()
+def func_nep_start():
+    global w, root
+    Q_E = extractedQ()
+    reveal_globals.local_start_time = time.time()
 	
-# 	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
-#     #sneha
-#     # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
-#     Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
-#     print("Query with NEP", Q_E_)
-#     func_nep_Complete()
+	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
+    #sneha
+    # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
+    Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
+    print("Query with NEP", Q_E_)
+    func_nep_Complete()
 
-# def func_nep_Complete():
-# 	global w, root
+def func_nep_Complete():
+	global w, root
 	
-# 	reveal_globals.local_end_time = time.time()
-# 	reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-# 	reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+	reveal_globals.local_end_time = time.time()
+	reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+	reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
 	
-# 	func_assemble_start()
+	func_assemble_start()
 
 ##### end --- additions for nep
 
@@ -422,18 +422,36 @@ def func_limit_Complete():
     reveal_globals.local_end_time = time.time()
     reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    func_assemble_start()
+    # func_assemble_start()
 
     # update_load()
-    # func_nep_start()
+    func_nep_start()
 
 def func_limit_start():
-	print("inside:   reveal_proc_support.func_limit_start")
-	reveal_globals.local_start_time = time.time()
-	reveal_globals.global_limit = limit.get_limit()
-	if reveal_globals.global_limit is not None:
-		reveal_globals.global_limit_op = str(reveal_globals.global_limit)
-	func_limit_Complete()
+    print("inside:   reveal_proc_support.func_limit_start")
+    temp = reveal_globals.global_filter_predicates
+    temp_2 =  copy.deepcopy(temp)
+    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
+    new_temp=[]
+    for ele in reveal_globals.global_filter_aeq:
+        new_temp = []
+        for e2 in temp:
+            if ele[1] == e2[1] and e2[2] == '=':
+                pass
+            else:
+                new_temp.append(e2)
+        temp = new_temp
+    
+    
+    reveal_globals.global_filter_predicates = temp
+    reveal_globals.local_start_time = time.time()
+    reveal_globals.global_limit = limit.get_limit()
+    if reveal_globals.global_limit is not None:
+        reveal_globals.global_limit_op = str(reveal_globals.global_limit)
+
+    reveal_globals.global_filter_predicates = temp_2
+  
+    func_limit_Complete()
 
 
 def func_orderby_Complete():

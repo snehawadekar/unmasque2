@@ -5,11 +5,8 @@ import copy
 import math
 import executable
 import datetime
-sys.path.append('../') 
 import reveal_globals
-import psycopg2
-import time
-import where_clause 
+
 import decimal
 import random
 

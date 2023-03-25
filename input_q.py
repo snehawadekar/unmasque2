@@ -130,8 +130,13 @@ def get_input_query():
     # reveal_globals.query1 = "select l_orderkey from lineitem where l_commitdate >= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22' and l_linenumber<>100;" #Q12
 
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem where o_orderkey = l_orderkey and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01';"
-    reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber;"
+    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber;"
+    #aoa +nep
+    reveal_globals.query1 = " select l_orderkey,l_linenumber from orders, lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber and l_linenumber <> 5; "
+    
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber;"
+    #aoa +nep
+    # reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_linenumber <>5 ; "
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22';"
     # reveal_globals.query1 = "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate >= l1.l_commitdate and s_nationkey = n_nationkey group by s_name order by numwait desc, s_name limit 100;" #Q21
     #AOA test queries

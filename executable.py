@@ -12,21 +12,7 @@ def getExecOutput():
         #cur.execute(open(executable_path, "r").read())
         #CREATE QUERY
         
-        query = ""
-        if reveal_globals.global_db_engine == 'PostgreSQL':
-            query = "Select " + reveal_globals.global_select_inp + "\n" + "From "  + reveal_globals.global_from_inp
-        if reveal_globals.global_where_inp.strip() != '':
-            query = query + "\n" + "Where " + reveal_globals.global_where_inp
-        if reveal_globals.global_groupby_inp.strip() != '':
-            query = query + "\n" + "Group By " + reveal_globals.global_groupby_inp
-        if reveal_globals.global_orderby_inp.strip() != '':
-            query = query + "\n" + "Order By " + reveal_globals.global_orderby_inp
-        if reveal_globals.global_limit_inp.strip() != '':
-            query = query + "\n" + "Limit " + reveal_globals.global_limit_inp 
-        query = query + ";"
-        if reveal_globals.global_input_type == "1":
-            query = "select c_name as name, c_acctbal as balance from customer where c_mktsegment LIKE 'FURNITURE%' ORDER BY balance DESC LIMIT 5"
-        
+    
         #query = "select * from film,inventory;"
         #query = "select s_acctbal from supplier;"
         #Q1

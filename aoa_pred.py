@@ -422,7 +422,7 @@ def extract_aoa():
             if 'int' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
                 left = val
                 right = max_int_val-i
-                while int((right - left).days) > 0:#left < right:
+                while int((right - left)) > 0:#left < right:
                     mid = left + int(math.ceil((right-left)/2))
                     cur = reveal_globals.global_conn.cursor()
                     cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') #for integer domain
