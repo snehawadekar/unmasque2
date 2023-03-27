@@ -1,5 +1,4 @@
 import os
-import sys
 
 copy_min_time=0
 view_min_time=0
@@ -64,6 +63,7 @@ global_projection_time = ""
 global_min_time = ""
 global_from_time = ""
 global_where_time = ""
+global_filter_predicates_disj = ""
 global_join_time = ""
 global_filter_time = ""
 global_groupby_time = ""
@@ -78,6 +78,7 @@ global_restore_flag = False
 global_min_button = False
 global_button_string = ""
 
+global_attrib_type_dict = {}
 global_min_instance_dict = {}
 global_miniscule_instances_dict = {}
 

@@ -45,6 +45,7 @@ import db_minimizer
 import error_handler
 import initialization
 import where_clause
+import in_operator
 import projection
 import groupby_clause
 import aggregation
@@ -402,13 +403,12 @@ def func_nep_start():
 	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
     #sneha
     # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
+    
     Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
-    print("Query with NEP", Q_E_)
+    print("Query with NEP   :", Q_E_)
     func_nep_Complete()
 
-def func_nep_Complete():
-	global w, root
-	
+def func_nep_Complete():	
 	reveal_globals.local_end_time = time.time()
 	reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
 	reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
@@ -429,6 +429,8 @@ def func_limit_Complete():
 
 def func_limit_start():
     print("inside:   reveal_proc_support.func_limit_start")
+    
+    
     temp = reveal_globals.global_filter_predicates
     temp_2 =  copy.deepcopy(temp)
     # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
@@ -563,7 +565,8 @@ def func_groupby_start():
     print("inside:   reveal_proc_support.func_groupby_start")
     reveal_globals.local_start_time = time.time()
     first_occur = True
-    reveal_globals.global_groupby_attributes, reveal_globals.global_groupby_flag = groupby_clause.getGroupByAttributes()
+    # reveal_globals.global_groupby_attributes, reveal_globals.global_groupby_flag = groupby_clause.getGroupByAttributes()
+    groupby_clause.getGroupByAttributes_disj()
     for i in range(len(reveal_globals.global_groupby_attributes)):
         elt = reveal_globals.global_groupby_attributes[i]
         if first_occur == True:
@@ -609,7 +612,18 @@ def func_aoa_Complete():
 	# reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
 	# reveal_globals.global_extracted_info_dict['projection'] = extracted_part_info()
 
-	func_project_start()
+	# func_project_start()
+    jg=[]
+    for elt in reveal_globals.global_filter_aeq:
+        temp =[]
+        temp.append(elt[1])
+        temp.append(elt[4])
+        if list(reversed(temp)) not in jg:
+            jg.append(temp)
+        
+    reveal_globals.global_join_graph = jg
+    
+    in_extractor_start()
 
 def func_aoa_start():
 
@@ -648,6 +662,106 @@ def func_aoa_start():
 
 ################## end-- additions for aoa_pred
 
+def in_extractor_start():
+    reveal_globals.local_start_time = time.time()
+    
+    
+    temp = reveal_globals.global_filter_predicates
+    temp_2 =  copy.deepcopy(temp)
+    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
+    new_temp=[]
+    for ele in reveal_globals.global_filter_aeq:
+        new_temp = []
+        for e2 in temp:
+            if ele[1] == e2[1] and e2[2] == '=':
+                pass
+            else:
+                new_temp.append(e2)
+        temp = new_temp
+    
+    
+    reveal_globals.global_filter_predicates = temp
+    reveal_globals.local_start_time = time.time()
+    in_operator.in_extract()
+
+
+    reveal_globals.global_filter_predicates = temp_2
+    
+    
+    for elt in reveal_globals.global_filter_predicates_disj:
+        print(len(elt))
+        if len(elt) == 1:
+            elt = elt[0]
+            
+            predicate = ''
+            if elt[2].strip() == 'range': 
+                if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
+                    predicate = elt[1] + " between date"  + " '" + str(elt[3]) + "'" + " and date" + " '" + str(elt[4]) + "'"
+                # print(type(elt[4]))
+                elif '-' in str(elt[4]):
+                    predicate = elt[1] + " between "  + str(elt[3]) + " and " + str(elt[4])
+                else:
+                    predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
+            elif elt[2].strip() == '>=':
+                if '-' in str(elt[3]):
+                    predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+                else:
+                    predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+            elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
+                predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
+            else:
+                predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
+                
+            if reveal_globals.global_where_op == '':
+                reveal_globals.global_where_op = predicate
+            else:
+                reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+                
+        else:
+            flg = True
+            predicate = '('
+            for disj in elt:
+                if flg == False:
+                    predicate += " or "
+                
+                if disj[2].strip() == 'range': 
+                    if "<class 'datetime.date'>"==str(type(disj[4])): #make changes for date in here
+                        predicate += disj[1] + " between date"  + " '" + str(disj[3]) + "'" + " and date" + " '" + str(disj[4]) + "'"
+                    # print(type(elt[4]))
+                    elif '-' in str(disj[4]):
+                        predicate += disj[1] + " between "  + str(disj[3]) + " and " + str(disj[4])
+                    else:
+                        predicate += disj[1] + " between "  + " '" + str(disj[3]) + "'" + " and " + " '" + str(disj[4]) + "'"
+                elif disj[2].strip() == '>=':
+                    if '-' in str(disj[3]):
+                        predicate += disj[1] + " " + str(disj[2]) + " '" + str(disj[3]) + "' "
+                    else:
+                        predicate += disj[1] + " " + str(disj[2]) + " " + str(disj[3])
+                elif 'equal' in disj[2] or 'like' in disj[2].lower() or '-' in str(disj[4]):
+                    predicate += disj[1] + " " + str(disj[2]).replace('equal', '=') + " '" + str(disj[4]) + "'"
+                else:
+                    predicate += disj[1] + ' ' + str(disj[2]) + ' ' + str(disj[4])
+                flg = False    
+            predicate += ')'
+            if reveal_globals.global_where_op == '':
+                reveal_globals.global_where_op = predicate
+            else:
+                reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate  
+    # in_operator.sneha_or()
+    print(reveal_globals.global_where_op)
+    in_extractor_complete()
+    
+def in_extractor_complete():
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_in_extractor_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    func_project_start()
+    # func_aoa_start()
+    
+
+    
+
+
 def func_filter_Complete():
     print("inside:   reveal_proc_support.func_filter_Complete")
     reveal_globals.local_end_time = time.time()
@@ -657,9 +771,11 @@ def func_filter_Complete():
     # update_load()
     # func_project_start()
     func_aoa_start()
+    # in_extractor_start()
 
 
 def func_filter_start():
+    
     # print("inside:   reveal_proc_support.func_filter_start")
     reveal_globals.local_start_time = time.time() #aman
     reveal_globals.global_filter_predicates = where_clause.get_filter_predicates()
@@ -687,6 +803,12 @@ def func_filter_start():
     #         reveal_globals.global_where_op = predicate
     #     else:
     #         reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+    
+    for elt in reveal_globals.global_key_lists:
+        temp = []
+        for val in elt:
+            temp.append(val[1])
+            reveal_globals.global_key_attributes.append(val[1])
     func_filter_Complete()
 
 def hash_result_comparator():

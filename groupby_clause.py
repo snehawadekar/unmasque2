@@ -1,16 +1,13 @@
-import sys
 try:
 	import psycopg2
 except ImportError:
 	pass
 
-sys.path.append('../')
 
 import reveal_globals
 import datetime
-import csv
+import itertools
 import copy
-import math
 import executable
 
 
@@ -27,6 +24,39 @@ def is_int(s):
 		return True
 	except ValueError:
 		return False
+
+def getGroupByAttributes_disj():
+	possible_filter_pred = []
+	fp_disj = copy.deepcopy(reveal_globals.global_filter_predicates_disj)
+	# while len(fp_disj) != 0:
+	somelist=[]
+	for i in range(len(fp_disj)):
+		somelist.append(fp_disj[i])
+		
+	ps = itertools.product(*somelist)
+	for element in ps:
+		print("-------------")
+		print(list(element))
+		possible_filter_pred.append(list(element))
+
+
+	
+   
+	for k in range(len(possible_filter_pred)):
+		reveal_globals.global_filter_predicates = possible_filter_pred[k]
+		print(reveal_globals.global_filter_predicates)
+		# reveal_globals.global_groupby_attributes, reveal_globals.global_groupby_flag = getGroupByAttributes()
+		groupby_temp, groupby_flag = getGroupByAttributes()
+		if groupby_flag:
+			reveal_globals.global_groupby_flag = True
+		for ele in groupby_temp:
+			if ele not in reveal_globals.global_groupby_attributes:
+				reveal_globals.global_groupby_attributes.append(ele)
+
+	print(reveal_globals.global_groupby_attributes)
+  
+    
+        
 
 def getGroupByAttributes():
 	print("inside ---groupby_clause.getGroupByAttributes")

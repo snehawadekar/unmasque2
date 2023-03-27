@@ -56,6 +56,7 @@ def sample_Database_Instance(core_relations, sample_size_percent, sample_thresho
                 temp_sample_size = math.floor((core_sizes[tabname] * temp_sample_size_percent)/100)
                 print("Sampling table " + tabname, flush = True)
                 cur = reveal_globals.global_conn.cursor()
+                cur.execute("drop table if exists "+ tabname + "1;" )
                 cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
                 cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
                 cur.execute("Insert into " + tabname + " select * from " + tabname + "1 where random() < .1 limit " + str(temp_sample_size) + ";")
@@ -105,6 +106,7 @@ def sample_Database_Instance(core_relations, sample_size_percent, sample_thresho
         else: #Make a copy of the table
             tabname = key_max
             cur = reveal_globals.global_conn.cursor()
+            cur.execute("drop table if exists "+ tabname + "1;" )
             cur.execute("Alter table " + tabname + " rename to " + tabname + "1;")
             cur.execute("create unlogged table " + tabname + " (like " + tabname + "1);")
             cur.execute("Insert into " + tabname + " select * from " + tabname + "1;")
@@ -214,6 +216,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
         os.makedirs(reveal_globals.global_reduced_data_path)
     for tabname in core_relations:
         cur = reveal_globals.global_conn.cursor()
+        cur.execute("drop table if exists "+ tabname + "4;" )
         cur.execute("create table " + tabname + "4 as select * from " + tabname + ";")
         # cur.execute("copy " + tabname + " to " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
         cur.close()

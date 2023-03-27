@@ -84,6 +84,7 @@ def get_aggregation():
 			result_index = 0
 			#check if it is a key attribute
 			key_list = []
+   
 			groupby_key_flag = False
 			for elt in reveal_globals.global_join_graph:
 				if attrib in elt:

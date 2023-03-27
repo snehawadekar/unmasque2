@@ -149,43 +149,46 @@ def extract_aoa():
             chk2 = 0
             pos_le = []
             pos_l = []
-            for c in cols:
-                if c[1] == pred[1]:
-                    continue
-                # SQL QUERY for checking value
-                cur = reveal_globals.global_conn.cursor()
-                cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
-                prev = cur.fetchone()
-                prev = prev[0]
-                cur.close()
-                print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
-                if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
-                    val = int(prev) #for INT type
-                    if pred[3] == val+1:
-                        chk2 = 1
-                        pos_l.append(c)
-                    elif pred[3] == val:
-                        # print("------------------------------")
-                        chk1 = 1
-                        pos_le.append(c)
-                elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:#sneha
-                    val = int(prev) #for INT type
-                    if int(pred[3]) == val+1:
-                        chk2 = 1
-                        pos_l.append(c)
-                    elif int(pred[3]) == val:
-                        # print("------------------------------")
-                        chk1 = 1
-                        pos_le.append(c)
-                elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
-                    val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
-                    if pred[3] == val+datetime.timedelta(days= 1):
-                        chk2 = 1
-                        pos_l.append(c)
-                    elif pred[3] == val:
-                        # print("------------------------------")
-                        chk1 = 1
-                        pos_le.append(c)
+            try:
+                for c in cols:
+                    if c[1] == pred[1]:
+                        continue
+                    # SQL QUERY for checking value
+                    cur = reveal_globals.global_conn.cursor()
+                    cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
+                    prev = cur.fetchone()
+                    prev = prev[0]
+                    cur.close()
+                    print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
+                    if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                        val = int(prev) #for INT type
+                        if pred[3] == val+1:
+                            chk2 = 1
+                            pos_l.append(c)
+                        elif pred[3] == val:
+                            # print("------------------------------")
+                            chk1 = 1
+                            pos_le.append(c)
+                    elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:#sneha
+                        val = int(prev) #for INT type
+                        if int(pred[3]) == val+1:
+                            chk2 = 1
+                            pos_l.append(c)
+                        elif int(pred[3]) == val:
+                            # print("------------------------------")
+                            chk1 = 1
+                            pos_le.append(c)
+                    elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                        val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
+                        if pred[3] == val+datetime.timedelta(days= 1):
+                            chk2 = 1
+                            pos_l.append(c)
+                        elif pred[3] == val:
+                            # print("------------------------------")
+                            chk1 = 1
+                            pos_le.append(c)
+            except:
+                print("nsjsfvkj")
             #snehajsjsd
             if chk1 == 1:
                 print("pos_le", pos_le)
@@ -193,41 +196,44 @@ def extract_aoa():
             if chk2 == 1:
                 isAoA = ainea(0, 0, pred[0], pred[1], pos_l, '<')
 
-
         elif pred[2] == '>=':
             chk3 = 0
             chk4 = 0
             pos_ge = []
             pos_g = []
-            for c in cols:
-                if c[1] == pred[1]:
-                    continue
-                # SQL QUERY for checking value
-                cur = reveal_globals.global_conn.cursor()
-                cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
-                prev = cur.fetchone()
-                prev = prev[0]
-                
-                cur.close()
-                print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
-                if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
-                    val = int(prev) #for INT type
-                    if pred[3] == val-1:
-                        chk4 = 1
-                        pos_g.append(c)
-                elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
-                    val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
-                    if pred[3] == val-datetime.timedelta(days= 1):
-                        chk4 = 1
-                        pos_g.append(c)
-                elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
-                    val = int(prev) #for INT type
-                    if int(pred[3]) == val-1:
-                        chk4 = 1
-                        pos_g.append(c)
-                    elif int(pred[3]) == val:
-                        chk3 = 1
-                        pos_ge.append(c)
+            try :
+                for c in cols:
+                    if c[1] == pred[1]:
+                        continue
+                    # SQL QUERY for checking value
+                    cur = reveal_globals.global_conn.cursor()
+                    cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
+                    print("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
+                    prev = cur.fetchone()
+                    prev = prev[0]
+                    
+                    cur.close()
+                    print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
+                    if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                        val = int(prev) #for INT type
+                        if pred[3] == val-1:
+                            chk4 = 1
+                            pos_g.append(c)
+                    elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                        val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
+                        if pred[3] == val-datetime.timedelta(days= 1):
+                            chk4 = 1
+                            pos_g.append(c)
+                    elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                        val = int(prev) #for INT type
+                        if int(pred[3]) == val-1:
+                            chk4 = 1
+                            pos_g.append(c)
+                        elif int(pred[3]) == val:
+                            chk3 = 1
+                            pos_ge.append(c)
+            except:
+                print("djvhb")
             if chk3 == 1:
                 print("pos_ge", pos_ge)
                 isAoA = ainea(0, 0, pred[0], pred[1], pos_ge, '>=')
@@ -236,8 +242,6 @@ def extract_aoa():
     
     
     print("Step2: ", time.time() - reveal_globals.local_start_time) #aman
-    
-    
     
     #step3
     reveal_globals.local_start_time = time.time() #aman
