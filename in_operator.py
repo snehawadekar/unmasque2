@@ -89,22 +89,26 @@ def extract(level,att,new_list):
             for item in reveal_globals.global_filter_predicates:
                 if item not in potential_in_attrib:
                     temp=item
-            new_list.append(temp)
-            temp_list.append(temp)
-            if temp[0] not in  filter_table_list.keys():
-                filter_table_list[temp[0]]=[temp]
-            # else:
-            #     filter_table_list[temp[0]].append(temp)
-            print("new condition: "+str(temp))
-            cur = reveal_globals.global_conn.cursor()
-            query = "select data_type from information_schema.columns where table_name ='"+temp[0]+"' and column_name = '" + temp[1] + "' order by ordinal_position; "
-            cur.execute(query)
-            res=cur.fetchall()
-            for row in res:
-               attrib_types_dict[(temp[0],temp[1])]=row[0]
-            print("local disjunction time: "+str(time.time()-local_start))
-            cur.close()
-            extract(level+1,att,new_list)
+            
+            
+            if temp != " ":
+                new_list.append(temp)
+                temp_list.append(temp)
+                if temp[0] not in  filter_table_list.keys():
+                    filter_table_list[temp[0]]=[temp]
+                # else:
+                #     filter_table_list[temp[0]].append(temp)
+                print("new condition: "+str(temp))
+                
+                cur = reveal_globals.global_conn.cursor()
+                query = "select data_type from information_schema.columns where table_name ='"+temp[0]+"' and column_name = '" + temp[1] + "' order by ordinal_position; "
+                cur.execute(query)
+                res=cur.fetchall()
+                for row in res:
+                    attrib_types_dict[(temp[0],temp[1])]=row[0]
+                print("local disjunction time: "+str(time.time()-local_start))
+                cur.close()
+                extract(level+1,att,new_list)
          
         else:
             print('error with minimizer')

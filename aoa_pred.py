@@ -110,11 +110,11 @@ def extract_aoa():
     start_time = time.time()
     for pred in C:
         print("Step 1")
-        # chk = 0
+        chk = 0
         pos_e = []
         if pred[2] == '=':
             for c in cols:
-                chk = 0
+                
                 if c[1] == pred[1]:
                     continue
                 # SQL QUERY for checking value
@@ -132,8 +132,8 @@ def extract_aoa():
                 if pred[3] == val: #sneha tab and moved to left
                     chk = 1
                     pos_e.append(c)
-                if chk == 1:
-                    aeqa(pred[0], pred[1], pos_e)
+            if chk == 1:
+                aeqa(pred[0], pred[1], pos_e)
     end_time = time.time()
     # print("Join with AoA time: ", end_time - start_time)
     print("Step1: ", time.time() - reveal_globals.local_start_time) #aman
@@ -524,6 +524,8 @@ def aeqa(tab, col, pos): #A=A
         val = int(prev) #for INT type
     elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
         val = reveal_globals.global_d_plus_value[col] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
+    
+    
     for c in pos:
         # SQL Query for inc c's val
         cur = reveal_globals.global_conn.cursor()
@@ -531,7 +533,8 @@ def aeqa(tab, col, pos): #A=A
         cur.execute("Insert into " + c[0] + " select * from new_" + c[0] + ";")
         cur.execute("delete from "+ tab + ";")
         cur.execute("Insert into " + tab + " select * from new_" + tab + ";")
-        cur.close()
+        cur.close()  
+            
         if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
             cur = reveal_globals.global_conn.cursor()
             cur.execute("update " + tab + " set " + col + " = " + str(val+1) + " ;")

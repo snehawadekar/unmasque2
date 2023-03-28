@@ -616,10 +616,12 @@ def func_aoa_Complete():
     jg=[]
     for elt in reveal_globals.global_filter_aeq:
         temp =[]
-        temp.append(elt[1])
-        temp.append(elt[4])
-        if list(reversed(temp)) not in jg:
-            jg.append(temp)
+        print(type(elt[3]))
+        if type(elt[3]) != int: 
+            temp.append(elt[1])
+            temp.append(elt[4])
+            if list(reversed(temp)) not in jg and (temp not in jg):
+                jg.append(temp)
         
     reveal_globals.global_join_graph = jg
     
@@ -665,7 +667,6 @@ def func_aoa_start():
 def in_extractor_start():
     reveal_globals.local_start_time = time.time()
     
-    
     temp = reveal_globals.global_filter_predicates
     temp_2 =  copy.deepcopy(temp)
     # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
@@ -682,10 +683,29 @@ def in_extractor_start():
     
     reveal_globals.global_filter_predicates = temp
     reveal_globals.local_start_time = time.time()
+    
     in_operator.in_extract()
 
 
     reveal_globals.global_filter_predicates = temp_2
+    
+    
+    in_extractor_complete()
+    
+def in_extractor_complete():
+    reveal_globals.local_end_time = time.time()
+    
+    temp = reveal_globals.global_filter_predicates
+    # temp_2 =  copy.deepcopy(temp)
+    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
+    new_temp=[]
+    for ele in temp:
+        if ele[1] in reveal_globals.global_key_attributes:
+            pass
+        else:
+            new_temp.append(ele)
+    
+    reveal_globals.global_filter_predicates = new_temp
     
     
     for elt in reveal_globals.global_filter_predicates_disj:
@@ -749,18 +769,12 @@ def in_extractor_start():
                 reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate  
     # in_operator.sneha_or()
     print(reveal_globals.global_where_op)
-    in_extractor_complete()
     
-def in_extractor_complete():
-    reveal_globals.local_end_time = time.time()
     reveal_globals.global_in_extractor_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     func_project_start()
     # func_aoa_start()
     
-
-    
-
 
 def func_filter_Complete():
     print("inside:   reveal_proc_support.func_filter_Complete")
