@@ -572,7 +572,7 @@ def func_groupby_start():
         if first_occur == True:
             reveal_globals.global_groupby_op = elt
             first_occur = False
-        else:
+        else: 
             reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
     func_groupby_Complete()
 
@@ -608,11 +608,12 @@ def func_project_start():
 def func_aoa_Complete():
 
 	#---todo---
-	# reveal_globals.global_where_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-	# reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-	# reveal_globals.global_extracted_info_dict['projection'] = extracted_part_info()
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_aoa_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    # reveal_globals.global_extracted_info_dict['projection'] = extracted_part_info()
 
-	# func_project_start()
+    # func_project_start()
     jg=[]
     for elt in reveal_globals.global_filter_aeq:
         temp =[]
@@ -629,7 +630,7 @@ def func_aoa_Complete():
 
 def func_aoa_start():
 
-    # reveal_globals.local_start_time = time.time() #aman
+    reveal_globals.local_start_time = time.time() #aman
     # reveal_globals.global_filter_predicates = aoa_pred.extract_aoa() #referenced aoa_pred.extract_aoa
     aoa_pred.extract_aoa() 
     
@@ -647,7 +648,7 @@ def func_aoa_start():
             if '-' in str(elt[3]):
                 predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
             else:
-                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[4])
         elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
             predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
         else:
@@ -709,7 +710,7 @@ def in_extractor_complete():
     
     
     for elt in reveal_globals.global_filter_predicates_disj:
-        print(len(elt))
+        # print(len(elt))
         if len(elt) == 1:
             elt = elt[0]
             
@@ -769,7 +770,7 @@ def in_extractor_complete():
                 reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate  
     # in_operator.sneha_or()
     print(reveal_globals.global_where_op)
-    
+    reveal_globals.local_end_time = time.time()
     reveal_globals.global_in_extractor_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     func_project_start()
@@ -1062,15 +1063,20 @@ print("total DB Minimizer Time   : ", reveal_globals.global_min_time)
 print("---copy_min_time          : ", reveal_globals.copy_min_time)
 print("---view_min_time          : ", reveal_globals.view_min_time)
 print("---cs_time s              : ", reveal_globals.cs_time)
+
 print("Join Clause Extr          : ", reveal_globals.global_join_time)
 print("Filter Predicate Ext      : ", reveal_globals.global_filter_time)
+print(" aoa time                 : ", reveal_globals.global_aoa_time)
+print(" IN time                  : ", reveal_globals.global_in_extractor_time)
+
 print("Projection extractor      : ", reveal_globals.global_projection_time)
 print("Group By                  : ", reveal_globals.global_groupby_time)
 print("Aggregate Time            : ", reveal_globals.global_agg_time)
 print("Order By                  : ", reveal_globals.global_orderby_time)
 print("Limit                     : ", reveal_globals.global_limit_time)
-# print("Hash result comparator    : ", reveal_globals.global_hashres_time)
+print("NEP time                  : ", reveal_globals.global_nep_time)
 print("total extraction time     : ", reveal_globals.global_tot_ext_time)
+
 
 hash_result_comparator()
 print("Hash result comparator                           : ", reveal_globals.global_hashres_time)

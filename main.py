@@ -854,8 +854,8 @@ reveal_globals.mini_type = "no-kapil"
 
 # print("minimizer====",reveal_globals.minimizer)
 #level-1
-reveal_globals.correlated_sampling="yes"
-# reveal_globals.correlated_sampling="no"
+# reveal_globals.correlated_sampling="yes"
+reveal_globals.correlated_sampling="no"
 
 #level-2      
 # reveal_globals.minimizer="copy_based"

@@ -162,31 +162,34 @@ def extract_aoa():
                     print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
                     if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         val = int(prev) #for INT type
-                        if pred[3] == val+1:
-                            chk2 = 1
-                            pos_l.append(c)
-                        elif pred[3] == val:
-                            # print("------------------------------")
-                            chk1 = 1
-                            pos_le.append(c)
+                        if type(pred[3]) == type(val):
+                            if pred[3] == val+1:
+                                chk2 = 1
+                                pos_l.append(c)
+                            elif pred[3] == val:
+                                # print("------------------------------")
+                                chk1 = 1
+                                pos_le.append(c)
                     elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:#sneha
                         val = int(prev) #for INT type
-                        if int(pred[3]) == val+1:
-                            chk2 = 1
-                            pos_l.append(c)
-                        elif int(pred[3]) == val:
-                            # print("------------------------------")
-                            chk1 = 1
-                            pos_le.append(c)
+                        if type(pred[3]) == type(val):
+                            if int(pred[3]) == val+1:
+                                chk2 = 1
+                                pos_l.append(c)
+                            elif int(pred[3]) == val:
+                                # print("------------------------------")
+                                chk1 = 1
+                                pos_le.append(c)
                     elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
-                        if pred[3] == val+datetime.timedelta(days= 1):
-                            chk2 = 1
-                            pos_l.append(c)
-                        elif pred[3] == val:
-                            # print("------------------------------")
-                            chk1 = 1
-                            pos_le.append(c)
+                        if type(pred[3]) == type(val):
+                            if pred[3] == val+datetime.timedelta(days= 1):
+                                chk2 = 1
+                                pos_l.append(c)
+                            elif pred[3] == val:
+                                # print("------------------------------")
+                                chk1 = 1
+                                pos_le.append(c)
             except:
                 print("nsjsfvkj")
             #snehajsjsd
@@ -216,22 +219,31 @@ def extract_aoa():
                     print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
                     if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         val = int(prev) #for INT type
-                        if pred[3] == val-1:
-                            chk4 = 1
-                            pos_g.append(c)
+                        if type(pred[3]) == type(val):
+                            if pred[3] == val-1:
+                                chk4 = 1
+                                pos_g.append(c)
+                            elif pred[3] == val:
+                                chk3 = 1
+                                pos_ge.append(c)
                     elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
-                        if pred[3] == val-datetime.timedelta(days= 1):
-                            chk4 = 1
-                            pos_g.append(c)
+                        if type(pred[3]) == type(val):
+                            if pred[3] == val-datetime.timedelta(days= 1):
+                                chk4 = 1
+                                pos_g.append(c)
+                            elif pred[3] == val:
+                                chk3 = 1
+                                pos_ge.append(c)
                     elif 'numeric' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         val = int(prev) #for INT type
-                        if int(pred[3]) == val-1:
-                            chk4 = 1
-                            pos_g.append(c)
-                        elif int(pred[3]) == val:
-                            chk3 = 1
-                            pos_ge.append(c)
+                        if type(pred[3]) == type(val):
+                            if int(pred[3]) == val-1:
+                                chk4 = 1
+                                pos_g.append(c)
+                            elif int(pred[3]) == val:
+                                chk3 = 1
+                                pos_ge.append(c)
             except:
                 print("djvhb")
             if chk3 == 1:

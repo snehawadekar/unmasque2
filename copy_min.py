@@ -4,7 +4,6 @@ import csv
 import copy
 import math
 import executable
-sys.path.append('../') 
 import reveal_globals
 import psycopg2
 import pandas as pd
@@ -12,16 +11,33 @@ import where_clause
 
 def getCoreSizes(core_relations):
 	print("DB_MINIMIZER.getcoresizes")
+	# core_sizes = {}
+	# for tabname in core_relations:
+	# 	try:
+	# 		cur = reveal_globals.global_conn.cursor()
+	# 		cur.execute('select count(*) from ' + tabname + ';')
+	# 		res = cur.fetchone()#it will return a tuple
+	# 		cur.close()
+	# 		core_sizes[tabname] = int(str(res[0]))
+	# 	except Exception as error:
+	# 		print("Error in getting table Sizes. Error: " + str(error))
+	# return core_sizes
+
+	sf = 100
+	reveal_globals.global_core_sizes= {
+		'nation' : 25,
+		'region' :5,
+		'part' : 200000* sf,
+		'partsupp' : 800000 * sf,
+		'lineitem' : 6000000 * sf,
+		'orders' : 1500000 * sf,
+		'supplier' : 10000 * sf,
+		'customer' : 150000 * sf,
+		
+	}
 	core_sizes = {}
 	for tabname in core_relations:
-		try:
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('select count(*) from ' + tabname + ';')
-			res = cur.fetchone()#it will return a tuple
-			cur.close()
-			core_sizes[tabname] = int(str(res[0]))
-		except Exception as error:
-			print("Error in getting table Sizes. Error: " + str(error))
+		core_sizes[tabname] = reveal_globals.global_core_sizes[tabname]
 	return core_sizes
 
 def getTableAttri(core_relations):
@@ -178,7 +194,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
 		if len(new_result) > 1:
 			cur = reveal_globals.global_conn.cursor()
-			cur.execute('drop table temp;')
+			cur.execute('drop table temp CASCADE;')
 			partition_dict[tabname] = (0, int(partition_dict[tabname][1]/2))
 			cur.close()
 		else:
