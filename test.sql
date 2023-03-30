@@ -82,3 +82,21 @@ and o_totalprice <= 49999.99
 Group By o_shippriority
 Order By o_shippriority asc
 Limit 10;
+
+Select o_shippriority, count(*) as low_line_count  From lineitem, orders Where l_shipdate <= l_commitdate and l_commitdate >= l_shipdate and l_commitdate <= l_receiptdate and l_receiptdate >= l_commitdate and l_receiptdate <= '1994-12-31' and l_commitdate <= '1994-12-31' and l_shipdate <= '1994-12-31' and l_orderkey = o_orderkey and o_orderkey = l_orderkey and l_quantity <= 29.99 and (l_shipdate <= '1993-07-23' or l_receiptdate between date '1993-08-02' and date '1994-12-31' or l_receiptdate between date '1993-07-29' and date '1994-12-31') and (l_commitdate between date '1993-07-12' and date '1993-08-05' or l_receiptdate between date '1993-08-12' and date '1994-12-31' or l_receiptdate between date '1993-07-11' and date '1994-12-31') and (l_receiptdate between date '1993-07-23' and date '1994-12-31' or l_receiptdate between date '1993-07-14' and date '1994-12-31') and (l_shipmode = 'FOB       ' or l_shipmode = 'AIR       ' or l_shipmode = 'SHIP      ' or l_shipmode = 'MAIL      ' or l_shipmode = 'RAIL      ' or l_shipmode = 'TRUCK     ') and o_totalprice <= 49999.99 Group By o_shippriority Order By o_shippriority asc Limit 10;
+
+
+
+Select l_shipmode, count(*) as count From orders, lineitem Where o_orderkey = l_orderkey and l_commitdate < l_receiptdate and l_shipdate < l_commitdate and l_receiptdate >= '1994-01-01' and l_receiptdate < '1995-01-01' and l_extendedprice <= o_totalprice  and l_extendedprice <= 70000 and o_totalprice > 60000 Group By l_shipmode Order By l_shipmode;
+
+Select o_orderpriority, count(*) as ordercount From orders, lineitem Where l_orderkey = o_orderkey and o_orderdate >= '1993-07-01' and o_orderdate < '1993-10-01' and l_commitdate < l_receiptdate Group By o_orderpriority Order By o_orderpriority
+
+
+
+Select l_orderkey, l_linenumber From orders, lineitem, partsupp Where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber Order By l_orderkey Limit 10;
+
+Select l_shipmode From lineitem, partsupp Where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber Group By l_shipmode Order By l_shipmode Limit 5;
+
+Select l_orderkey, l_linenumber From orders, lineitem, partsupp Where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > '1994-01-01' Order By l_orderkey Limit 7;
+
+Select s name, count(*) as numwait From supplier, lineitem, orders, nation Where s suppkey = l_suppkey and o_orderkey = l_orderkey and o_orderstatus = 'F' and l_receiptdate >= l_commitdate and s nationkey = n nationkey Group By s name Order By numwait desc Limit 100;

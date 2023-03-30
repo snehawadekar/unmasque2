@@ -26,6 +26,7 @@ def extract(level,att,new_list):
         query1='truncate table '+ tabname+' ;'
         cur.execute(query1)
         condition = "true "
+        
         if tabname in filter_table_list.keys():
             condition="true "
             for filters in filter_table_list[tabname]:

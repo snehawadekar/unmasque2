@@ -3,6 +3,10 @@ import reveal_globals
 def get_input_query():
     
     # --------------U1
+    # All U1 queries (except Q5) are extracted by aman's replacement componenets
+    # the file main_aoa.py comtains those changes
+    # Q5 issue because of -- c_nationkey = s_nationkey and s_nationkey = n_nationkey   -- aman's code not able to handle when 3 attributes are requires to have same values 
+    
     # Q1
     # reveal_globals.query1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_discount) as sum_disc_price, sum(l_tax) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - interval '71 days' group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;"
     # Q2p
@@ -23,7 +27,7 @@ def get_input_query():
     # reveal_globals.query1 = "Select  p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From  partsupp, part Where  p_partkey = ps_partkey and p_type like 'SMALL PLATED%' and p_size >= 4 Group By  p_brand, p_type, p_size Order By  supplier_cnt desc, p_brand, p_type, p_size;"
 
     # Q17
-    reveal_globals.query1 = "Select  AVG(l_extendedprice) as avgTOTAL From  lineitem, part Where  p_partkey = l_partkey and p_brand = 'Brand#52' and p_container = 'LG CAN';"
+    # reveal_globals.query1 = "Select  AVG(l_extendedprice) as avgTOTAL From  lineitem, part Where  p_partkey = l_partkey and p_brand = 'Brand#52' and p_container = 'LG CAN';"
     # Q18
     # reveal_globals.query1 ="Select  p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From  partsupp, part Where  p_partkey = ps_partkey and p_type like 'SMALL PLATED%' and p_size >= 4 Group By  p_brand, p_type, p_size Order By  supplier_cnt desc, p_brand, p_type, p_size;"
     # Q21
@@ -160,6 +164,21 @@ def get_input_query():
     # aman's algebraic predicates
     ##############################
     
+    # aman paper Q1
+    # reveal_globals.query1 = " Select l_shipmode, count(*)  as count From orders, lineitem Where o_orderkey = l_orderkey and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate >= '1994-01-01' and l_receiptdate < '1995-01-01' and l_extendedprice <= o_totalprice  and l_extendedprice <= 70000 and o_totalprice > 60000 Group By l_shipmode Order By l_shipmode; " 
+    # aman paper Q2
+    # extracted, res same main_aoa_exe.py
+    # reveal_globals.query1 =  " Select o_orderpriority, count(*) as ordercount From orders, lineitem Where l_orderkey = o_orderkey and o_orderdate >= '1993-07-01' and o_orderdate < '1993-10-01' and l_commitdate <= l_receiptdate Group By o_orderpriority Order By o_orderpriority; "
+    # aman paper Q3
+    # reveal_globals.query1 = " Select l_orderkey, l_linenumber From orders, lineitem, partsupp Where ps_partkey = l_partkey and ps_suppkey = l_suppkey and o_orderkey = l_orderkey and l_shipdate >= o_orderdate and ps_availqty <= l_linenumber Order By l_orderkey Limit 10; "
+    # aman paper Q4
+    # reveal_globals.query1 = " Select l_shipmode From lineitem, partsupp Where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber Group By l_shipmode Order By l_shipmode Limit 5; "
+    # aman paper Q5
+    # reveal_globals.query1 = " Select l_orderkey, l_linenumber From orders, lineitem, partsupp Where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > '1994-01-01' Order By l_orderkey Limit 7; "
+    # aman paper Q6
+    # extracted, res same main_aoa_exe.py
+    # reveal_globals.query1 = " Select s_name, count(*) From supplier, lineitem, orders, nation Where s_suppkey = l_suppkey and o_orderkey = l_orderkey and o_orderstatus = 'F' and l_receiptdate >= l_commitdate and s_nationkey = n_nationkey Group By s_name Limit 100; "
+   
     #ATTopATT
     # reveal_globals.query1 = "select l_orderkey from lineitem where l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22';" #Q12
     # reveal_globals.query1 = "select l_orderkey from lineitem where l_commitdate >= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22' and l_linenumber<>100;" #Q12
@@ -172,17 +191,13 @@ def get_input_query():
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber;"
     #aoa +nep
     # reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_linenumber <>5 ; "
-    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > date '1994-01-01' and l_commitdate <= date '1994-07-22';"
+    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate >= date '1994-01-01' and l_commitdate <= date '1994-07-22';"
+    
+    # extracted results same (without OR )
+    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate >= date '1994-01-01';"
+
+    
     # reveal_globals.query1 = "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate >= l1.l_commitdate and s_nationkey = n_nationkey group by s_name order by numwait desc, s_name limit 100;" #Q21
-    #AOA test queries
-    # reveal_globals.query1 = "select * from num where a <= b and c = d;" 
-    # reveal_globals.query1 = "select * from num where a=10 and a<=b;"
-    # reveal_globals.query1 = "select * from num where a <= b and b <= c;" # b<c
-    # reveal_globals.query1 = "select * from num where a <= b and a <= c and b = 10;" # a<c
-    # reveal_globals.query1 = "select * from num where a <= b and a < c and b <= c and b = 10;"
-    # reveal_globals.query1 = "select * from num where a between 0 and 10 and a <= b and b >= 5 and c <= a;" # a<b, c<a
-    # intersect
-    # reveal_globals.query1 = "select s_nationkey from supplier, partsupp where s_suppkey = ps_suppkey INTERSECT select n_nationkey from customer, nation where n_nationkey = c_nationkey;"
     # NEQ
     # reveal_globals.query1 = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_discount) as sum_disc_price, sum(l_tax) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' and l_linestatus <> 'F' Group by l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
     # reveal_globals.query1 ="select * from lineitem where l_orderkey >= -100 and l_orderkey <= 100;"
@@ -220,7 +235,16 @@ def get_input_query():
     # reveal_globals.query1 = " select n_name, SUM(s_acctbal) from supplier, partsupp, nation where ps_suppkey = s_suppkey and s_nationkey = n_nationkey and (n_name = 'ARGENTINA' or n_regionkey =3 ) and (s_acctbal > 2000 or ps_supplycost < 500) and n_name <>'FRANCE' and n_regionkey <> 1 group by n_name; "
     
     
+    # Exemplar Queries
     # reveal_globals.query1 = " SELECT l_shipmode, o_shippriority ,count(o_orderpriority) as low_line_count FROM lineitem LEFT OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice < 50000 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate < l_receiptdate AND l_shipdate < l_commitdate AND ( l_receiptdate >= '1994-01-01' OR l_quantity < 30 ) AND l_receiptdate < '1995-01-01' AND l_returnflag NOT IN ('R', 'N') GROUP BY l_shipmode, o_shippriority Order By l_shipmode LIMIT  10; "
     # reveal_globals.query1 = " SELECT  o_shippriority ,count(o_orderpriority) as low_line_count FROM lineitem , orders WHERE l_orderkey = o_orderkey AND o_totalprice < 50000 and  l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_receiptdate >= '1994-01-01' OR l_quantity < 30 ) AND l_receiptdate < '1995-01-01' AND l_returnflag NOT IN ('R', 'N') GROUP BY  o_shippriority LIMIT  10; "
+    # reveal_globals.query1 = " SELECT o_shippriority ,count(o_orderpriority) FROM lineitem , orders WHERE l_orderkey = o_orderkey AND o_totalprice < 50000 and  l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_quantity < 30  or l_quantity = 10) AND l_receiptdate <= '1995-01-01' GROUP BY  o_shippriority LIMIT  10; "
+    # reveal_globals.query1 = " SELECT  o_shippriority ,count(o_orderpriority) FROM lineitem , orders WHERE l_orderkey = o_orderkey AND o_totalprice < 50000 and  l_shipmode='MAIL' AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_quantity < 30 ) AND l_receiptdate <= '1995-01-01' GROUP BY  o_shippriority LIMIT  10; "
+    # reveal_globals.query1 = " SELECT o_shippriority ,count(o_orderpriority) FROM lineitem , orders WHERE l_orderkey = o_orderkey and  l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_quantity < 30 ) AND l_receiptdate <= '1995-01-01' GROUP BY  o_shippriority LIMIT  10; "
+    # reveal_globals.query1 = " SELECT o_shippriority ,count(o_orderpriority) FROM lineitem , orders WHERE l_orderkey = o_orderkey and  l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_quantity < 30  or l_quantity = 10) AND l_receiptdate <= '1995-01-01' and l_returnflag NOT IN ('R', 'N') GROUP BY  o_shippriority LIMIT  10; "
+
+    # trial 
     
+    # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate >= date '1994-01-01' and l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL');"
+
     return  

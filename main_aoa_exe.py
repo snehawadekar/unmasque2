@@ -578,14 +578,7 @@ def func_groupby_start():
     func_groupby_Complete()
 
 
-def func_project_Complete():
-    print("inside:   reveal_proc_support.func_project_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_projection_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
-    # update_load()
-    func_groupby_start()
+
 
 def func_project_start():
 	print("inside:   reveal_proc_support.func_project_start")
@@ -605,6 +598,14 @@ def func_project_start():
 			reveal_globals.global_select_op_proc = reveal_globals.global_select_op_proc + ", " + elt
 	func_project_Complete()
 
+def func_project_Complete():
+    print("inside:   reveal_proc_support.func_project_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_projection_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
+    # update_load()
+    func_groupby_start()
 ################## start-- additions for aoa_pred
 def func_aoa_Complete():
 
@@ -626,7 +627,8 @@ def func_aoa_Complete():
                 jg.append(temp)
         
     reveal_globals.global_join_graph = jg
-    
+    # func_project_start()
+
     in_extractor_start()
 
 def func_aoa_start():
@@ -673,7 +675,7 @@ def in_extractor_start():
     temp_2 =  copy.deepcopy(temp)
     # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
     new_temp=[]
-    for ele in reveal_globals.global_filter_aeq:
+    for ele in (reveal_globals.global_filter_aeq ):
         new_temp = []
         for e2 in temp:
             if ele[1] == e2[1] and e2[2] == '=':
@@ -682,18 +684,24 @@ def in_extractor_start():
                 new_temp.append(e2)
         temp = new_temp
     
+    for ele in (reveal_globals.global_filter_aoa ):
+        new_temp = []
+        for e2 in temp:
+            if ele[1] == e2[1]:
+                pass
+            else:
+                new_temp.append(e2)
+        temp = new_temp
     
-    reveal_globals.global_filter_predicates = temp
+    
+    reveal_globals.global_filter_predicates = temp 
     reveal_globals.local_start_time = time.time()
     
     in_operator.in_extract()
 
-
     reveal_globals.global_filter_predicates = temp_2
-    
-    
     in_extractor_complete()
-    
+
 def in_extractor_complete():
     reveal_globals.local_end_time = time.time()
     

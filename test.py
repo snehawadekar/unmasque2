@@ -53,11 +53,19 @@ extracted_query = [
 
 dbcon.establishConnection()
 
-for i in range(len(hidden_query)):
-    # print(hidden_query[i])
-    st = time.time()
-    reveal_globals.query1 = hidden_query[i]
-    # ans = result_comparator.match_comparison_based(extracted_query[i])
-    ans = result_comparator.match(extracted_query[i])
-    print("total time   :", time.time() - st)
-    print (ans, i)
+# for i in range(len(hidden_query)):
+#     # print(hidden_query[i])
+#     st = time.time()
+#     reveal_globals.query1 = hidden_query[i]
+#     # ans = result_comparator.match_comparison_based(extracted_query[i])
+#     ans = result_comparator.match(extracted_query[i])
+#     print("total time   :", time.time() - st)
+#     print (ans, i)
+
+
+st = time.time()
+reveal_globals.query1 = " SELECT  o_shippriority ,count(o_orderpriority) as low_line_count FROM lineitem , orders WHERE l_orderkey = o_orderkey AND o_totalprice < 50000 and  l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND ( l_receiptdate >= '1994-01-01' OR l_quantity < 30 ) AND l_receiptdate < '1995-01-01' GROUP BY  o_shippriority LIMIT  10; "
+# ans = result_comparator.match_comparison_based(extracted_query[i])
+ans = result_comparator.match(" Select o_shippriority, count(*) as low_line_count  From lineitem, orders Where l_shipdate <= l_commitdate and l_commitdate >= l_shipdate and l_commitdate <= l_receiptdate and l_receiptdate >= l_commitdate and l_receiptdate <= '1994-12-31' and l_commitdate <= '1994-12-31' and l_shipdate <= '1994-12-31' and l_orderkey = o_orderkey and l_quantity <= 29.99 and (l_shipdate <= '1993-07-23' or l_receiptdate between date '1993-08-02' and date '1994-12-31' or l_receiptdate between date '1993-07-29' and date '1994-12-31') and (l_commitdate between date '1993-07-12' and date '1993-08-05' or l_receiptdate between date '1993-08-12' and date '1994-12-31' or l_receiptdate between date '1993-07-11' and date '1994-12-31') and (l_receiptdate between date '1993-07-23' and date '1994-12-31' or l_receiptdate between date '1993-07-14' and date '1994-12-31') and (l_shipmode = 'FOB       ' or l_shipmode = 'AIR       ' or l_shipmode = 'SHIP      ' or l_shipmode = 'MAIL      ' or l_shipmode = 'RAIL      ' or l_shipmode = 'TRUCK     ') and o_totalprice <= 49999.99 Group By o_shippriority Order By o_shippriority asc Limit 10; ")
+print("total time   :", time.time() - st)
+print (ans)
