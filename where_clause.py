@@ -229,7 +229,22 @@ def checkAttribValueEffect(tabname, attrib, val):
 	cur.execute(query)
 	cur.close()
 	new_result = executable.getExecOutput()
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		cur.close()
@@ -238,9 +253,14 @@ def checkAttribValueEffect(tabname, attrib, val):
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
 	update_other_data(tabname, attrib, 'int', val, new_result, [])
-	if len(new_result) > 1:
+	# if len(new_result) > 1:
+	# 	return True
+	# return False
+	#extra nullity check aman
+	if flag == 1: #if len(new_result) > 1:
 		return True
 	return False
+
 
 #mukul	
 def getFloatFilterValue(tabname, filter_attrib, min_val, max_val, operator):
@@ -287,7 +307,7 @@ def getFloatFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 		high = float(max_val)
 		while (high - low) > 0.00001:
 			mid_val = (low + high)/2
-			print("[low,high,mid]",low,high,mid_val)
+			# print("[low,high,mid]",low,high,mid_val)
 			#updatequery
 			query =  query_front + " " + str(round(mid_val,2)) + " ;"
 			cur = reveal_globals.global_conn.cursor()
@@ -335,7 +355,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
     			#put filter_
 				update_other_data(tabname, filter_attrib, 'int', mid_val, new_result, [low, mid_val, high, low, mid_val-1])
 				high = mid_val - 1
@@ -360,7 +395,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
     			#put filter_
 				update_other_data(tabname, filter_attrib, 'int', mid_val, new_result, [low, mid_val, high, mid_val+1, high])
 				low = mid_val + 1
@@ -385,7 +435,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 		cur.execute(query)
 		cur.close()
 		new_result = executable.getExecOutput()
-		if len(new_result) <= 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_low = False
 		#put filter_
 		update_other_data(tabname, filter_attrib, 'int', low, new_result, [])
@@ -401,11 +466,28 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 		# cur.execute("copy " + tabname + " from " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
-		if len(new_result) <= 1:
+		# if len(new_result) <= 1:
+		# 	flag_high = False
+		# return (flag_low == False and flag_high == False)
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_high = False
 		return (flag_low == False and flag_high == False)
 	return False
-
 
 def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 	counter = 0
@@ -430,7 +512,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
 				update_other_data(tabname, attrib, 'int', mid_val, new_result, [low, mid_val, high, low, mid_val- datetime.timedelta(days= 1)])
 				high = mid_val - datetime.timedelta(days= 1)
 			else:
@@ -453,7 +550,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
 				update_other_data(tabname, attrib, 'int', mid_val, new_result, [low, mid_val, high, mid_val + datetime.timedelta(days= 1), high])
 				low = mid_val + datetime.timedelta(days= 1)
 			else:
@@ -477,7 +589,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'int', low, new_result, [])
-		if len(new_result) <= 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_low = False
 		query =  query_front + " '" + str(high) + "' " + query_back + ";"
 		cur = reveal_globals.global_conn.cursor()
@@ -490,7 +617,25 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 		# cur.execute("copy " + tabname + " from " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
-		if len(new_result) <= 1:
+		# if len(new_result) <= 1:
+		# 	flag_high = False
+		# return (flag_low == False and flag_high == False)
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_high = False
 		return (flag_low == False and flag_high == False)
 	return False
@@ -510,7 +655,22 @@ def checkStringPredicate(tabname, attrib):
 	cur.close()
 	new_result = executable.getExecOutput()
 	update_other_data(tabname, attrib, 'text', val, new_result, [])
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #if len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		#conn.commit()
@@ -527,7 +687,22 @@ def checkStringPredicate(tabname, attrib):
 	cur.close()
 	new_result = executable.getExecOutput()
 	update_other_data(tabname, attrib, 'text', "''", new_result, [])
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #if len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		cur.close()
@@ -558,7 +733,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'text', temp, new_result, [])
-		if len(new_result) > 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 1: #if len(new_result) > 1:
 			reveal_globals.local_other_info_dict['Conclusion'] = "'" + representative[index] + "' is a replacement for wildcard character '%' or '_'"
 			reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
 			temp = copy.deepcopy(representative)
@@ -570,7 +760,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 			cur.close()
 			new_result = executable.getExecOutput()
 			update_other_data(tabname, attrib, 'text', temp, new_result, [])
-			if len(new_result) > 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 1: #if len(new_result) > 1:
 				reveal_globals.local_other_info_dict['Conclusion'] = "'" + representative[index] + "' is a replacement from wildcard character '%'"
 				reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
 				representative = representative[:index] + representative[index+1:]
@@ -609,7 +814,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 			cur.close()
 			new_result = executable.getExecOutput()
 			update_other_data(tabname, attrib, 'text', temp, new_result, [])
-			if len(new_result) > 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 1: #if len(new_result) > 1:
 				output = output + '%'
 			output = output + representative[index]
 			index = index + 1
@@ -627,7 +847,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'text', temp, new_result, [])
-		if len(new_result) > 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 1: #if len(new_result) > 1:
 			output = output + '%'
 	return output
 
@@ -802,7 +1037,7 @@ def get_filter_predicates():
 						print('identifying value for Int filter attribute', attrib)
 						val = getIntFilterValue(tabname, attrib, min_val_domain, math.floor(float(d_plus_value[attrib]) + 5), '>=')
 						val = float(val)
-						val1 = getFloatFilterValue(tabname, attrib, val - 1 , val, '>=')
+						val1 = getFloatFilterValue(tabname, attrib, val , val + 1, '>=')
 						filterAttribs.append((tabname, attrib, '>=', float(round(val1,2)), float(max_val_domain)))
 				reveal_globals.global_instance_dict['filter_'+attrib] = copy.deepcopy(reveal_globals.local_instance_list)
 	print("filterAttribs",filterAttribs)

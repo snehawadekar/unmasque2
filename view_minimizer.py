@@ -1,4 +1,4 @@
-# import check_nullfree
+import check_nullfree
 import os
 import copy
 import executable
@@ -92,22 +92,22 @@ def reduce_Database_Instance_cs_pass(core_relations, method = 'binary partition'
 			# cur.execute('drop view '+ tabname + ';')
 			# cur.close()
    
-			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
-				#Take the lower half
-				start_ctid = mid_ctid2
-			else:
-				#Take the upper half
-				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
-   
-			#UN+nf
-			# if check_nullfree.getExecOutput() == False:
+			# new_result = executable.getExecOutput()
+			# if len(new_result) <= 1:
 			# 	#Take the lower half
 			# 	start_ctid = mid_ctid2
 			# else:
 			# 	#Take the upper half
 			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
+				#Take the lower half
+				start_ctid = mid_ctid2
+			else:
+				#Take the upper half
+				end_ctid = mid_ctid1
     
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('drop view '+ tabname + ';')
@@ -192,22 +192,22 @@ def reduce_Database_Instance_cs_pass(core_relations, method = 'binary partition'
 			# cur.execute('drop view '+ tabname + ';')
 			# cur.close()
    
-			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
-				#Take the lower half
-				start_ctid = mid_ctid2
-			else:
-				#Take the upper half
-				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
-   
-			#UN+nf
-			# if check_nullfree.getExecOutput() == False:
+			# new_result = executable.getExecOutput()
+			# if len(new_result) <= 1:
 			# 	#Take the lower half
 			# 	start_ctid = mid_ctid2
 			# else:
 			# 	#Take the upper half
 			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
+				#Take the lower half
+				start_ctid = mid_ctid2
+			else:
+				#Take the upper half
+				end_ctid = mid_ctid1
     
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('drop view '+ tabname + ';')
@@ -254,13 +254,13 @@ def reduce_Database_Instance_cs_pass(core_relations, method = 'binary partition'
 		cur.close()
 		print(tabname, "==", res)
 	#SANITY CHECK
-	new_result = executable.getExecOutput()
-	if len(new_result) <= 1:
-		print("Error: Query out of extractable domain\n")
-		return False
-	# if check_nullfree.getExecOutput() == False:
+	# new_result = executable.getExecOutput()
+	# if len(new_result) <= 1:
 	# 	print("Error: Query out of extractable domain\n")
 	# 	return False
+	if check_nullfree.getExecOutput() == False:
+		print("Error: Query out of extractable domain\n")
+		return False
 	
 	#populate screen data
 	#POPULATE MIN INSTANCE DICT
@@ -354,24 +354,24 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			# cur.close()
    
 			# new_result = executable.getExecOutput()
-			new_result_flag = getExecOutput()
+			# new_result_flag = getExecOutput()
 
-			# if len(new_result) <= 1:
-			if new_result_flag == False: 
-				#Take the lower half
-				start_ctid = mid_ctid2
-			else:
-				#Take the upper half
-				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
-   
-			#UN+nf
-			# if check_nullfree.getExecOutput() == False:
+			# # if len(new_result) <= 1:
+			# if new_result_flag == False: 
 			# 	#Take the lower half
 			# 	start_ctid = mid_ctid2
 			# else:
 			# 	#Take the upper half
 			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
+				#Take the lower half
+				start_ctid = mid_ctid2
+			else:
+				#Take the upper half
+				end_ctid = mid_ctid1
     
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('drop view '+ tabname + ';')
@@ -457,24 +457,24 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 			# cur.close()
    
 			# new_result = executable.getExecOutput()
-			new_result_flag = getExecOutput()
+			# new_result_flag = getExecOutput()
 
-			# if len(new_result) <= 1:
-			if new_result_flag == False: 
-				#Take the lower half
-				start_ctid = mid_ctid2
-			else:
-				#Take the upper half
-				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
-   
-			#UN+nf
-			# if check_nullfree.getExecOutput() == False:
+			# # if len(new_result) <= 1:
+			# if new_result_flag == False: 
 			# 	#Take the lower half
 			# 	start_ctid = mid_ctid2
 			# else:
 			# 	#Take the upper half
 			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
+				#Take the lower half
+				start_ctid = mid_ctid2
+			else:
+				#Take the upper half
+				end_ctid = mid_ctid1
     
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('drop view '+ tabname + ';')
@@ -497,12 +497,7 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 		# new_result = executable.getExecOutput()
 		new_result_flag = getExecOutput()
 
-		# if len(new_result) <= 1:
-		if new_result_flag == False: 
-			print("Error: Query out of extractable domain\n")
-			return False
-
-
+		
 
 	#WRITE TO Reduced Data Directory
 	#check for data directory existence, if not exists , create it
@@ -520,13 +515,13 @@ def reduce_Database_Instance_cs_fail(core_relations, method = 'binary partition'
 		cur.close()
 		print(tabname, "==", res)
 	#SANITY CHECK 
-	new_result = executable.getExecOutput()
-	if len(new_result) <= 1:
-		print("Error: Query out of extractable domain\n")
-		return False
-	# if check_nullfree.getExecOutput() == False:
+	# new_result = executable.getExecOutput()
+	# if len(new_result) <= 1:
 	# 	print("Error: Query out of extractable domain\n")
 	# 	return False
+	if check_nullfree.getExecOutput() == False:
+		print("Error: Query out of extractable domain\n")
+		return False
 	
 	#populate screen data
 	#POPULATE MIN INSTANCE DICT

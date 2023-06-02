@@ -4,14 +4,14 @@ import executable
 
 # HAsh based result comparator
 def match(Q_E):
-        
+    
     gst=time.time()
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("create view r_e as "+ Q_E)
     cur.close()
     # print("line 11  --   ", time.time() - st)
     
-    cur  = reveal_globals.global_conn.cursor()
+    cur = reveal_globals.global_conn.cursor()
     cur.execute("Select count(*) from r_e")
     res1 = cur.fetchone()[0]
     cur.close()

@@ -254,4 +254,5 @@ def get_aggregation():
 	for i in range(len(reveal_globals.global_projected_attributes)):
 		if(reveal_globals.global_projected_attributes[i] == ''):
 			AggregationList[i] = ('','count(*)')
+			reveal_globals.countPresent = 1 #aman
 	return AggregationList

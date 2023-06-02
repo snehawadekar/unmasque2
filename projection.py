@@ -1,16 +1,12 @@
-import sys
+
 try:
 	import psycopg2
 except ImportError:
 	pass
 
-sys.path.append('../')
-
 import reveal_globals
 import datetime
-import csv
 import copy
-import math
 import executable
 
 
@@ -44,7 +40,7 @@ def getProjectedAttributes():
     projectedAttrib1 = []
     projection_names = []
     value_used = []
-    #Identifying projected attributs with no filter
+    # Identifying projected attributs with no filter
     dummy_int = 2
     dummy_char = 65 # to avoid having space/tab
     dummy_date = datetime.date(1000,1,1)
@@ -138,7 +134,7 @@ def getProjectedAttributes():
             projectedAttrib1.append('')
 
     # print("projectedAttrib org  :",projectedAttrib)
-    # # aug 5
+    # aug 5
     for val in new_result:
         val2=val
         if is_number(val):
@@ -323,7 +319,7 @@ def getProjectedAttributes():
             for val in curr_attrib:
                 newfilterList.remove(val)
             curr_attrib = []
-    #HARDCODING FOR PROJECTION FOR NOW
+    # HARDCODING FOR PROJECTION FOR NOW
     reveal_globals.local_other_info_dict = {}
     reveal_globals.local_other_info_dict['Current Mutation'] = 'No Mutation'
     reveal_globals.local_other_info_dict[u'Candidate List \u2014 revenue'] = "[l_extendedprice]"
@@ -332,9 +328,9 @@ def getProjectedAttributes():
     reveal_globals.local_other_info_dict[u'Candidate List \u2014 l_orderkey'] = "[l_orderkey, o_orderkey]"
     reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
     reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
-    #HARDCODIG FOR DEMO (TO BE REMOVED)
-    for i in range(len(projectedAttrib)):
-        if projectedAttrib[i].strip() == 'o_orderkey':
-            projectedAttrib[i] = 'l_orderkey'
+    # HARDCODIG FOR DEMO (TO BE REMOVED)
+    # for i in range(len(projectedAttrib)):
+    #     if projectedAttrib[i].strip() == 'o_orderkey':
+    #         projectedAttrib[i] = 'l_orderkey'
     #####################################
     return projectedAttrib, projection_names

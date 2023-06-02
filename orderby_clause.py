@@ -33,7 +33,7 @@ class CandidateAttribute():
 import time
 def checkOrdering(obj, result):
 	print("inside -- orderby_clause.checkOrdering")
-	print(len(result),result)
+	# print(len(result),result)
 	# time.sleep(30)
 	try:
 		i=2

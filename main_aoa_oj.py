@@ -19,7 +19,7 @@ import csv
 import sys
 import threading
 
-
+import check_nep_oj
 import time
 from flask import Flask, render_template, abort
 # from turbo_flask import Turbo
@@ -40,6 +40,7 @@ import dbcon
 # import outer_join
 import time
 import copy
+import count_handler
 import from_clause
 import db_minimizer
 import error_handler
@@ -59,14 +60,9 @@ import copy_min
 import nep
 import aoa_pred
 import cs2_impr
-
-
+import outer_join
 import psycopg2
-
-
-import os.path
-
-
+import check_oj
 
 
 def extracted_part_info():
@@ -100,7 +96,8 @@ def runreveal(*args):
     #CLOSE THIS SCREEN AND CALL THE NEXT SCREEN
     reveal_globals.global_proc_prev_screen = "inp"
     extractionStart()
- 
+    # return
+
 def getconn() :
     #change port 
     conn = psycopg2.connect(
@@ -136,6 +133,7 @@ def reveal_support_init():
     #INITIALIZE ALL CONCERNED GLOBAL/LOCAL VARIABLES
     # reveal_globals.query1=""
     reveal_globals.output1=""
+    reveal_globals.error= ""
     #error test
     # reveal_globals.error="No Error"
 
@@ -218,8 +216,10 @@ def reveal_support_init():
 
 
 def extractionStart(*args):
-	print("inside:   reveal_proc_support.extractionStart")
-	func_from_start()
+    print("inside:   reveal_proc_support.extractionStart")
+    # check_oj.check()
+    reveal_globals.outer_join_flag = True
+    func_from_start()
 
 
 def func_from_start():
@@ -354,265 +354,8 @@ def func_join_start():
 			else:
 				reveal_globals.global_where_op = reveal_globals.global_where_op + ' and ' + elt[0] + ' = ' + elt[i]
 	func_join_Complete()
-	
-def func_assemble_Complete():
-    print("inside:   reveal_proc_support.func_assemble_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
-    # print("end")
-    # print("$$$$****$$$$")
-    #time.sleep(50)
-    # update_load()
-    error_handler.restore_database_instance()
-
-def func_assemble_start():
-    print("inside:   reveal_proc_support.func_assemble_start")
-    output=""
-    reveal_globals.local_start_time = time.time()
-    if reveal_globals.global_db_engine == 'PostgreSQL':
-        output = "Select " +reveal_globals.global_select_op + "\n" + "From "  +reveal_globals.global_from_op
-    if reveal_globals.global_where_op != '':
-        output = output + "\n" + "Where " + reveal_globals.global_where_op
-    if reveal_globals.global_groupby_op != '':
-        output = output + "\n" + "Group By " + reveal_globals.global_groupby_op
-    if reveal_globals.global_orderby_op != '':
-        output = output + "\n" + "Order By " + reveal_globals.global_orderby_op
-    if reveal_globals.global_limit_op  != '':
-        output = output + "\n" + "Limit " + reveal_globals.global_limit_op 
-    output = output + ";"
-    # output = "Select " + reveal_globals.global_select_op + "\n" + "From "  + reveal_globals.global_from_op + "\n" + "Where " + reveal_globals.global_where_op + "\n" + "Group By "+ reveal_globals.global_groupby_op + "\n" + "Order By " + reveal_globals.global_orderby_op + "\n" + "Limit " + reveal_globals.global_limit_op + ";"
-    print('EXTRACTED OUTPUT QUERY :')
-    reveal_globals.output1=output
-    print(reveal_globals.output1)
-    func_assemble_Complete()  #changes made here0
-
-#### start----  additions for nep
-def extractedQ():
-	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
-	if reveal_globals.global_where_op.strip() != '':
-		query = query + "\n" + "Where " + reveal_globals.global_where_op
-	if reveal_globals.global_groupby_op.strip() != '':
-		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
-	if reveal_globals.global_orderby_op.strip() != '':
-		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
-	if reveal_globals.global_limit_op.strip() != '':
-		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
-	query = query + ";"
-	return query	
-
-def func_nep_start():
-    global w, root
-    Q_E = extractedQ()
-    print(Q_E)
-    reveal_globals.local_start_time = time.time()
-	
-	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
-    #sneha
-    # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
-    
-    Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
-    print("Query with NEP   :", Q_E_)
-    func_nep_Complete()
-
-def func_nep_Complete():	
-	reveal_globals.local_end_time = time.time()
-	reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-	reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-	
-	func_assemble_start()
-
-##### end --- additions for nep
-
-def func_limit_Complete():
-    print("inside:   reveal_proc_support.func_limit_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    # func_assemble_start()
-
-    # update_load()
-    func_nep_start()
-
-def func_limit_start():
-    print("inside:   reveal_proc_support.func_limit_start")
-    
-    
-    temp = reveal_globals.global_filter_predicates
-    temp_2 =  copy.deepcopy(temp)
-    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
-    new_temp=[]
-    for ele in reveal_globals.global_filter_aeq:
-        new_temp = []
-        for e2 in temp:
-            if ele[1] == e2[1] and e2[2] == '=':
-                pass
-            else:
-                new_temp.append(e2)
-        temp = new_temp
-    
-    
-    reveal_globals.global_filter_predicates = temp
-    reveal_globals.local_start_time = time.time()
-    reveal_globals.global_limit = limit.get_limit()
-    if reveal_globals.global_limit is not None:
-        reveal_globals.global_limit_op = str(reveal_globals.global_limit)
-
-    reveal_globals.global_filter_predicates = temp_2
-  
-    func_limit_Complete()
 
 
-def func_orderby_Complete():
-    print("inside:   reveal_proc_support.func_orderby_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_orderby_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['limit'] = extracted_part_info()
-    # update_load()
-    func_limit_start()             
-
-def func_orderby_start():
-	print("inside:   reveal_proc_support.func_orderby_start")
-	reveal_globals.local_start_time = time.time()
-	reveal_globals.global_orderby_attributes = orderby_clause.get_orderby_attributes()
-	first_occur = True
-	for elt in reveal_globals.global_orderby_attributes:
-		if first_occur == True:
-			reveal_globals.global_orderby_op = reveal_globals.global_output_list[elt[0].index] + ' ' + elt[1]
-			first_occur = False
-		else:
-			reveal_globals.global_orderby_op = reveal_globals.global_orderby_op + ', ' + reveal_globals.global_output_list[elt[0].index] + ' ' + elt[1]
-	func_orderby_Complete()
-
-
-def func_agg_Complete():
-    print("inside:   reveal_proc_support.func_agg_Complete")
-    reveal_globals.global_select_op_proc = reveal_globals.global_select_op
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_agg_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['order by'] = extracted_part_info()
-    # update_load()
-    func_orderby_start()
-
-def func_agg_start():
-    print("inside:   reveal_proc_support.func_agg_start")
-    reveal_globals.local_start_time = time.time()
-    reveal_globals.global_aggregated_attributes = aggregation.get_aggregation()
-    refine_Query()   
-    func_agg_Complete()
-
-
-def refine_Query():
-	print("inside:   reveal_proc_support.refine_Query")
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		attrib = reveal_globals.global_projected_attributes[i]
-		if attrib in reveal_globals.global_key_attributes and attrib in reveal_globals.global_groupby_attributes:
-			if not ('sum' in reveal_globals.global_aggregated_attributes[i][1] or 'count' in reveal_globals.global_aggregated_attributes[i][1]):
-				reveal_globals.global_aggregated_attributes[i] = (reveal_globals.global_aggregated_attributes[i][0], '')
-	temp_list = copy.deepcopy(reveal_globals.global_groupby_attributes)
-	for attrib in temp_list:
-		if attrib not in reveal_globals.global_projected_attributes:
-			try:
-				reveal_globals.global_groupby_attributes.remove(attrib)
-			except:
-				pass
-			continue
-		remove_flag = True
-		for elt in reveal_globals.global_aggregated_attributes:
-			if elt[0] == attrib and (not ('sum' in elt[1] or 'count' in elt[1])):
-				remove_flag = False
-				break
-		if remove_flag == True:
-			try:
-				reveal_globals.global_groupby_attributes.remove(attrib)
-			except:
-				pass
-	#UPDATE OUTPUTS
-	first_occur = True
-	reveal_globals.global_groupby_op = ''
-	for i in range(len(reveal_globals.global_groupby_attributes)):
-		elt = reveal_globals.global_groupby_attributes[i]
-		if first_occur == True:
-			reveal_globals.global_groupby_op = elt
-			first_occur = False
-		else:
-			reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
-	first_occur = True
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		elt = reveal_globals.global_projected_attributes[i]
-		reveal_globals.global_output_list.append(copy.deepcopy(elt))
-		if reveal_globals.global_aggregated_attributes != [] and reveal_globals.global_aggregated_attributes[i][1] != '' :
-			elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
-			if 'count' in reveal_globals.global_aggregated_attributes[i][1]:
-				elt = reveal_globals.global_aggregated_attributes[i][1]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
-		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
-			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
-		if first_occur == True:
-			reveal_globals.global_select_op = elt
-			first_occur = False
-		else:
-			reveal_globals.global_select_op = reveal_globals.global_select_op + ", " + elt	
-	return
-
-def func_groupby_Complete():
-    print("inside:   reveal_proc_support.func_groupby_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_groupby_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['agg'] = extracted_part_info()
-    # update_load()
-    func_agg_start()
-
-
-def func_groupby_start():
-    print("inside:   reveal_proc_support.func_groupby_start")
-    reveal_globals.local_start_time = time.time()
-    first_occur = True
-    # reveal_globals.global_groupby_attributes, reveal_globals.global_groupby_flag = groupby_clause.getGroupByAttributes()
-    groupby_clause.getGroupByAttributes_disj()
-    for i in range(len(reveal_globals.global_groupby_attributes)):
-        elt = reveal_globals.global_groupby_attributes[i]
-        if first_occur == True:
-            reveal_globals.global_groupby_op = elt
-            first_occur = False
-        else: 
-            reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
-    func_groupby_Complete()
-
-
-
-
-def func_project_start():
-	print("inside:   reveal_proc_support.func_project_start")
-	reveal_globals.local_start_time = time.time()
-	reveal_globals.global_projected_attributes, reveal_globals.global_projection_names = projection.getProjectedAttributes()
-	first_occur = True
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		elt = reveal_globals.global_projected_attributes[i]
-		reveal_globals.global_output_list.append(copy.deepcopy(elt))
-		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
-			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
-		if first_occur == True:
-			reveal_globals.global_select_op_proc = elt
-			first_occur = False
-		else:
-			reveal_globals.global_select_op_proc = reveal_globals.global_select_op_proc + ", " + elt
-	func_project_Complete()
-
-def func_project_Complete():
-    print("inside:   reveal_proc_support.func_project_Complete")
-    reveal_globals.local_end_time = time.time()
-    reveal_globals.global_projection_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
-    # update_load()
-    func_groupby_start()
 ################## start-- additions for aoa_pred
 def func_aoa_Complete():
 
@@ -638,13 +381,50 @@ def func_aoa_Complete():
 
     in_extractor_start()
 
+
 def func_aoa_start():
 
     reveal_globals.local_start_time = time.time() #aman
     # reveal_globals.global_filter_predicates = aoa_pred.extract_aoa() #referenced aoa_pred.extract_aoa
     aoa_pred.extract_aoa() 
     
-    for elt in (reveal_globals.global_filter_aoa + reveal_globals.global_filter_aeq) :
+    temp = reveal_globals.global_filter_predicates
+    temp_2 =  copy.deepcopy(temp)
+    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
+    new_temp=[]
+    
+    for e2 in temp:
+        include_flag = True
+        # new_temp = []
+        for ele in (reveal_globals.global_filter_aeq ):
+            if ele[1] == e2[1] and e2[2] == '=':
+                include_flag = False
+            if ele[4] == e2[1] and e2[2] == '=':
+                include_flag = False
+        if include_flag:
+            new_temp.append(e2)
+    
+    temp = new_temp
+    new_temp = []
+    for e2 in temp:
+        include_flag = True
+        for ele in (reveal_globals.global_filter_aoa ):
+            if ele[1] == e2[1]:
+                include_flag = False
+        if include_flag:
+            new_temp.append(e2)
+    temp = new_temp
+    
+    
+    reveal_globals.global_filter_predicates = temp 
+    
+    ###########
+    aoa_pred.dormant_extractor()
+    ##########
+    
+    reveal_globals.global_filter_predicates = temp_2
+    
+    for elt in (reveal_globals.global_filter_aoa + reveal_globals.global_filter_aeq + reveal_globals.global_filter_dormant) :
         predicate = ''
         if elt[2].strip() == 'range': 
             if "<class 'datetime.date'>"==str(type(elt[4])): #make changes for date in here
@@ -655,10 +435,12 @@ def func_aoa_start():
             else:
                 predicate = elt[1] + " between "  + " '" + str(elt[3]) + "'" + " and " + " '" + str(elt[4]) + "'"
         elif elt[2].strip() == '>=':
-            if '-' in str(elt[3]):
+            if elt[3] in reveal_globals.global_core_relations:
+                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[4])
+            elif '-' in str(elt[3]):
                 predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
             else:
-                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[4])
+                predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
         elif 'equal' in elt[2] or 'like' in elt[2].lower() or '-' in str(elt[4]):
             predicate = elt[1] + " " + str(elt[2]).replace('equal', '=') + " '" + str(elt[4]) + "'"
         else:
@@ -689,6 +471,8 @@ def in_extractor_start():
         for ele in (reveal_globals.global_filter_aeq ):
             if ele[1] == e2[1] and e2[2] == '=':
                 include_flag = False
+            if ele[4] == e2[1] and e2[2] == '=':
+                include_flag = False
         if include_flag:
             new_temp.append(e2)
     
@@ -698,6 +482,8 @@ def in_extractor_start():
         include_flag = True
         for ele in (reveal_globals.global_filter_aoa ):
             if ele[1] == e2[1]:
+                include_flag = False
+            if ele[4] == e2[1]:
                 include_flag = False
         if include_flag:
             new_temp.append(e2)
@@ -794,18 +580,182 @@ def in_extractor_complete():
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     func_project_start()
     # func_aoa_start()
-    
+ 
+def func_project_start():
+	print("inside:   reveal_proc_support.func_project_start")
+	reveal_globals.local_start_time = time.time()
+	reveal_globals.global_projected_attributes, reveal_globals.global_projection_names = projection.getProjectedAttributes()
+	first_occur = True
+	for i in range(len(reveal_globals.global_projected_attributes)):
+		elt = reveal_globals.global_projected_attributes[i]
+		reveal_globals.global_output_list.append(copy.deepcopy(elt))
+		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
+			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
+			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
+		if first_occur == True:
+			reveal_globals.global_select_op_proc = elt
+			first_occur = False
+		else:
+			reveal_globals.global_select_op_proc = reveal_globals.global_select_op_proc + ", " + elt
+	func_project_Complete()
 
-def func_filter_Complete():
-    print("inside:   reveal_proc_support.func_filter_Complete")
+def func_project_Complete():
+    print("inside:   reveal_proc_support.func_project_Complete")
     reveal_globals.local_end_time = time.time()
-    reveal_globals.global_filter_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_projection_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_extracted_info_dict['projection'] = extracted_part_info()
+    reveal_globals.global_extracted_info_dict['group by'] = extracted_part_info()
     # update_load()
-    # func_project_start()
-    func_aoa_start()
-    # in_extractor_start()
+    func_groupby_start()
+
+def func_groupby_Complete():
+    print("inside:   reveal_proc_support.func_groupby_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_groupby_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_extracted_info_dict['agg'] = extracted_part_info()
+    # update_load()
+    func_agg_start()
+
+def func_groupby_start():
+    print("inside:   reveal_proc_support.func_groupby_start")
+    reveal_globals.local_start_time = time.time()
+    first_occur = True
+    # reveal_globals.global_groupby_attributes, reveal_globals.global_groupby_flag = groupby_clause.getGroupByAttributes()
+    groupby_clause.getGroupByAttributes_disj()
+    for i in range(len(reveal_globals.global_groupby_attributes)):
+        elt = reveal_globals.global_groupby_attributes[i]
+        if first_occur == True:
+            reveal_globals.global_groupby_op = elt
+            first_occur = False
+        else: 
+            reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
+    func_groupby_Complete()
+
+
+def func_agg_Complete():
+    print("inside:   reveal_proc_support.func_agg_Complete")
+    reveal_globals.global_select_op_proc = reveal_globals.global_select_op
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_agg_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_extracted_info_dict['order by'] = extracted_part_info()
+    func_orderby_start()
+    # if reveal_globals.countPresent == 1:
+    #     func_count_handler()
+    # else:
+    #     func_orderby_start()
+
+
+def func_count_handler():
+	count_handler.solve_count()
+	func_orderby_start()
+
+def func_agg_start():
+    print("inside:   reveal_proc_support.func_agg_start")
+    reveal_globals.local_start_time = time.time()
+    reveal_globals.global_aggregated_attributes = aggregation.get_aggregation()
+    refine_Query()   
+    func_agg_Complete()
+
+
+
+def func_orderby_Complete():
+    print("inside:   reveal_proc_support.func_orderby_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_orderby_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_extracted_info_dict['limit'] = extracted_part_info()
+    # update_load()
+    func_limit_start()             
+
+def func_orderby_start():
+	print("inside:   reveal_proc_support.func_orderby_start")
+	reveal_globals.local_start_time = time.time()
+	reveal_globals.global_orderby_attributes = orderby_clause.get_orderby_attributes()
+	first_occur = True
+	for elt in reveal_globals.global_orderby_attributes:
+		if first_occur == True:
+			reveal_globals.global_orderby_op = reveal_globals.global_output_list[elt[0].index] + ' ' + elt[1]
+			first_occur = False
+		else:
+			reveal_globals.global_orderby_op = reveal_globals.global_orderby_op + ', ' + reveal_globals.global_output_list[elt[0].index] + ' ' + elt[1]
+	func_orderby_Complete()
+
+
+def func_limit_Complete():
+    print("inside:   reveal_proc_support.func_limit_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    # func_assemble_start()
+    
+    ########## call new function to check if nep exists
+    # func_assemble_start()
+    # print(reveal_globals.output1)
+    # check_nep_oj.check_nep_oj(reveal_globals.output1)
+    
+    # while reveal_globals.nep_flag :
+    #     func_nep()
+        
+    
+    
+    if reveal_globals.outer_join_flag == True:
+        func_outerjoin_start()
+    else:
+        output=""
+        reveal_globals.local_start_time = time.time()
+        if reveal_globals.global_db_engine == 'PostgreSQL':
+            output = "Select " +reveal_globals.global_select_op + "\n" + "From "  +reveal_globals.global_from_op
+        if reveal_globals.global_where_op != '':
+            output = output + "\n" + "Where " + reveal_globals.global_where_op
+        if reveal_globals.global_groupby_op != '':
+            output = output + "\n" + "Group By " + reveal_globals.global_groupby_op
+        if reveal_globals.global_orderby_op != '':
+            output = output + "\n" + "Order By " + reveal_globals.global_orderby_op
+        if reveal_globals.global_limit_op  != '':
+            output = output + "\n" + "Limit " + reveal_globals.global_limit_op 
+        output = output + ""
+        # output = "Select " + reveal_globals.global_select_op + "\n" + "From "  + reveal_globals.global_from_op + "\n" + "Where " + reveal_globals.global_where_op + "\n" + "Group By "+ reveal_globals.global_groupby_op + "\n" + "Order By " + reveal_globals.global_orderby_op + "\n" + "Limit " + reveal_globals.global_limit_op + ";"
+        print('EXTRACTED OUTPUT QUERY :')
+        reveal_globals.output1=output
+        print(reveal_globals.output1)
+    
+    return
+    # while reveal_globals.nep_flag :
+    #     func_nep()
+        
+    # update_load()
+    # func_nep_start()
+
+def func_limit_start():
+    print("inside:   reveal_proc_support.func_limit_start")
+    
+    
+    temp = reveal_globals.global_filter_predicates
+    temp_2 =  copy.deepcopy(temp)
+    # reveal_globals.global_filter_predicates = reveal_globals.global_filter_aoa
+    new_temp=[]
+    for ele in reveal_globals.global_filter_aeq:
+        new_temp = []
+        for e2 in temp:
+            if ele[1] == e2[1] and e2[2] == '=':
+                pass
+            else:
+                new_temp.append(e2)
+        temp = new_temp
+    
+    
+    reveal_globals.global_filter_predicates = temp
+    reveal_globals.local_start_time = time.time()
+    reveal_globals.global_limit = limit.get_limit()
+    if reveal_globals.global_limit is not None:
+        reveal_globals.global_limit_op = str(reveal_globals.global_limit)
+
+    reveal_globals.global_filter_predicates = temp_2
+  
+    func_limit_Complete()
+
 
 
 def func_filter_start():
@@ -844,6 +794,187 @@ def func_filter_start():
             temp.append(val[1])
             reveal_globals.global_key_attributes.append(val[1])
     func_filter_Complete()
+	
+
+def func_filter_Complete():
+    print("inside:   reveal_proc_support.func_filter_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_filter_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_extracted_info_dict['projection'] = extracted_part_info()
+    # update_load()
+    # func_project_start()
+    func_aoa_start()
+    # in_extractor_start()
+
+
+#### start----  additions for nep
+def extractedQ():
+	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
+	if reveal_globals.global_where_op.strip() != '':
+		query = query + "\n" + "Where " + reveal_globals.global_where_op
+	if reveal_globals.global_groupby_op.strip() != '':
+		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
+	if reveal_globals.global_orderby_op.strip() != '':
+		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
+	if reveal_globals.global_limit_op.strip() != '':
+		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
+	query = query + ";"
+	return query	
+
+def func_nep():
+    
+    global w, root
+    # Q_E = extractedQ()
+    Q_E = reveal_globals.output1
+    # print(Q_E)
+    reveal_globals.local_start_time = time.time()
+	
+	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
+    # sneha
+    # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
+    
+    Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
+    if Q_E_ == False:
+        reveal_globals.output1=Q_E
+    else:
+        reveal_globals.output1=Q_E_
+    print("Query with NEP   :", reveal_globals.output1)
+    print('EXTRACTED OUTPUT QUERY :')
+    # reveal_globals.output1=Q_E_	
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    # if reveal_globals.outer_join_flag == True:
+    #     func_outerjoin_start()
+    # else:
+    #     func_assemble_start()
+    
+    
+   
+
+##### end --- additions for nep
+
+
+def func_outerjoin_start():
+    print("inside:   reveal_proc_support.func_outerjoin_start")
+    reveal_globals.local_start_time = time.time()
+    outer_join.fn()
+    func_outerjoin_Complete()
+    
+def func_outerjoin_Complete():
+    print("inside:   reveal_proc_support.func_outerjoin_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    # func_assemble_start()
+    # error_handler.del_d1()
+    # error_handler.delete_conn()
+    # func_nep()
+    
+
+def refine_Query():
+	print("inside:   reveal_proc_support.refine_Query")
+	for i in range(len(reveal_globals.global_projected_attributes)):
+		attrib = reveal_globals.global_projected_attributes[i]
+		if attrib in reveal_globals.global_key_attributes and attrib in reveal_globals.global_groupby_attributes:
+			if not ('sum' in reveal_globals.global_aggregated_attributes[i][1] or 'count' in reveal_globals.global_aggregated_attributes[i][1]):
+				reveal_globals.global_aggregated_attributes[i] = (reveal_globals.global_aggregated_attributes[i][0], '')
+	temp_list = copy.deepcopy(reveal_globals.global_groupby_attributes)
+	for attrib in temp_list:
+		if attrib not in reveal_globals.global_projected_attributes:
+			try:
+				reveal_globals.global_groupby_attributes.remove(attrib)
+			except:
+				pass
+			continue
+		remove_flag = True
+		for elt in reveal_globals.global_aggregated_attributes:
+			if elt[0] == attrib and (not ('sum' in elt[1] or 'count' in elt[1])):
+				remove_flag = False
+				break
+		if remove_flag == True:
+			try:
+				reveal_globals.global_groupby_attributes.remove(attrib)
+			except:
+				pass
+	#UPDATE OUTPUTS
+	first_occur = True
+	reveal_globals.global_groupby_op = ''
+	for i in range(len(reveal_globals.global_groupby_attributes)):
+		elt = reveal_globals.global_groupby_attributes[i]
+		if first_occur == True:
+			reveal_globals.global_groupby_op = elt
+			first_occur = False
+		else:
+			reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
+	first_occur = True
+	for i in range(len(reveal_globals.global_projected_attributes)):
+		elt = reveal_globals.global_projected_attributes[i]
+		reveal_globals.global_output_list.append(copy.deepcopy(elt))
+		if reveal_globals.global_aggregated_attributes != [] and reveal_globals.global_aggregated_attributes[i][1] != '' :
+			elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
+			if 'count' in reveal_globals.global_aggregated_attributes[i][1]:
+				elt = reveal_globals.global_aggregated_attributes[i][1]
+			reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
+		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
+            # if elt in keys of equi joins:
+            #     make null elt once
+            #     run hq
+            #     if the corresponding value is null elt is the projected column
+            #     make null the key equivalent to elt
+            #     again run hq
+            #     if the corresponding value is null, the other key is the actual projected column
+                
+			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
+			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
+		if first_occur == True:
+			reveal_globals.global_select_op = elt
+			first_occur = False
+		else:
+			reveal_globals.global_select_op = reveal_globals.global_select_op + ", " + elt	
+	return
+
+
+def func_assemble_Complete():
+    print("inside:   reveal_proc_support.func_assemble_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
+    # print("end")
+    # print("$$$$****$$$$")
+    #time.sleep(50)
+    # update_load()
+    error_handler.restore_database_instance()
+
+def func_assemble_start():
+    print("inside:   reveal_proc_support.func_assemble_start")
+    output = ""
+    reveal_globals.local_start_time = time.time()
+    if reveal_globals.global_db_engine == 'PostgreSQL':
+        output = "Select " +reveal_globals.global_select_op + "\n" + "From "  +reveal_globals.global_from_op
+    if reveal_globals.global_where_op != '':
+        output = output + "\n" + "Where " + reveal_globals.global_where_op
+    if reveal_globals.global_groupby_op != '':
+        output = output + "\n" + "Group By " + reveal_globals.global_groupby_op
+    if reveal_globals.global_orderby_op != '':
+        output = output + "\n" + "Order By " + reveal_globals.global_orderby_op
+    if reveal_globals.global_limit_op  != '':
+        output = output + "\n" + "Limit " + reveal_globals.global_limit_op 
+    output = output + " "
+    # output = "Select " + reveal_globals.global_select_op + "\n" + "From "  + reveal_globals.global_from_op + "\n" + "Where " + reveal_globals.global_where_op + "\n" + "Group By "+ reveal_globals.global_groupby_op + "\n" + "Order By " + reveal_globals.global_orderby_op + "\n" + "Limit " + reveal_globals.global_limit_op + ";"
+    reveal_globals.output1 = output
+    print('EXTRACTED OUTPUT QUERY :')
+    # reveal_globals.output1=Q_E_
+    print(reveal_globals.output1)
+    print("inside:   reveal_proc_support.func_assemble_Complete")
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
+    # error_handler.restore_database_instance()   
+    return 
 
 def hash_result_comparator():
     dbcon.establishConnection()
@@ -859,17 +990,23 @@ def hash_result_comparator():
         print(" results Same")
     else:
         print("results different")
+    
+    
+
     #     return render_template('page2.html',output_query=session["o_query"],input_query=session["i_query"],res_comp="Comparison Successful!!\n \n Output tables of Extracted Query and Hidden Query are Same.")
     # else:
     #     return render_template('page2.html',output_query=session["o_query"],input_query=session["i_query"],res_comp="Comparison Unsuccessful!!\n \n Output tables of Extracted Query and Hidden Query are Different.")
 
 
 
-if __name__ == '__main__':
-    reveal_vp_start_gui()
+# if __name__ == '__main__':
+#     reveal_vp_start_gui()
  
 
 
+
+################################3
+'''
 
 @app.route("/")
 def session_page():
@@ -899,23 +1036,32 @@ def query_process_page():
     if request.method=="POST":
         reveal_globals.error=""
         reveal_globals.query1=""
-        q=request.form.get("QUERY")
-        reveal_globals.minimizer=request.form.get("minimizer")
-        # print("minimizer====",reveal_globals.minimizer)
-        reveal_globals.correlated_sampling=request.form.get("correlated_sampling")
+        # q=request.form.get("QUERY")
         
-        reveal_globals.query1=q
+        # reveal_globals.minimizer=request.form.get("minimizer")
+        # print("minimizer====",reveal_globals.minimizer)
+        # reveal_globals.correlated_sampling=request.form.get("correlated_sampling")
+        
+        # reveal_globals.query1=q
+        #level-1
+        reveal_globals.correlated_sampling="yes"
+        # reveal_globals.correlated_sampling="no"
+
+        #level-2      
+        # reveal_globals.minimizer="copy_based"
+        reveal_globals.minimizer="view_based"
+        input_q.get_input_query() # comment out later
         print("point-1")
         reveal_vp_start_gui()
         print("point-2")
         op=reveal_globals.output1
         session["i_query"]=reveal_globals.query1
-        session["o_query"]=op
+        session["o_query"]=reveal_globals.output1
         print("Error:  ",reveal_globals.error)
-        if(reveal_globals.error==""):
-            return redirect('/query_output_page')
-        else:
-            return redirect('/query_input_page')
+        # if(reveal_globals.error==""):
+        return redirect('/query_output_page')
+        # else:
+        #     return redirect('/query_input_page')
     # except:
     #     return render_template('error.html',er=reveal_globals.error)
 
@@ -1040,14 +1186,15 @@ if __name__=='__main__':
     app.run(host='127.0.0.1', port=8083)
     #change while web deloyment
 
-
+'''
+#################################
 
 
 
 
 
 ############# termal interface of Unmasque2 ############
-'''
+# '''
 
 reveal_support_init()
 dbcon.establishConnection()
@@ -1088,13 +1235,14 @@ print("---cs_time s              : ", reveal_globals.cs_time)
 print("Join Clause Extr          : ", reveal_globals.global_join_time)
 print("Filter Predicate Ext      : ", reveal_globals.global_filter_time)
 print(" aoa time                 : ", reveal_globals.global_aoa_time)
-print(" IN time                  : ", reveal_globals.global_in_extractor_time)
+print(" IN time                  : ", reveal_globals.global_disj_time)
 
 print("Projection extractor      : ", reveal_globals.global_projection_time)
 print("Group By                  : ", reveal_globals.global_groupby_time)
 print("Aggregate Time            : ", reveal_globals.global_agg_time)
 print("Order By                  : ", reveal_globals.global_orderby_time)
 print("Limit                     : ", reveal_globals.global_limit_time)
+print("Outer Join time           : ", reveal_globals.global_oj_time)
 print("NEP time                  : ", reveal_globals.global_nep_time)
 print("total extraction time     : ", reveal_globals.global_tot_ext_time)
 
@@ -1103,4 +1251,4 @@ hash_result_comparator()
 print("Hash result comparator                           : ", reveal_globals.global_hashres_time)
 print("total extraction time + hash comparison time     : ", reveal_globals.global_tot_ext_time)
 
-'''
+# '''

@@ -5,7 +5,7 @@ view_min_time=0
 cs_time=0
 
 sf =1
-database_in_use='december'
+database_in_use='tpch_oj'
 cs_status = ""
 
 query1=""
@@ -17,13 +17,13 @@ error=""
 
 minimizer="view_based"
 correlated_sampling="no"
-mini_type = "kapil"
+mini_type = "no-kapil"
 #default minimizer: copy-based
 
 
 global_os_name = "linux"
 global_db_engine_dropdown = ('Microsoft SQL Server', 'PostgreSQL')
-global_db_instance_dropdown = ('tpch1GB', 'tpch10GB', 'tpch100GB', 'tpch1TB', 'tpcds1GB', 'tpcds10GB', 'tpcds100GB', 'tpcds1TB')
+global_db_instance_dropdown = ('tpch1GB', 'tpch10GB', 'tpch_ojGB', 'tpch1TB', 'tpcds1GB', 'tpcds10GB', 'tpcds100GB', 'tpcds1TB')
 global_qh = ""
 global_qe_save_path = ""
 global_qe_save_checkbox = ""
@@ -55,6 +55,7 @@ global_clauses_with_syntactic_changes = ""
 global_number_of_query_invocations = ""
 global_tot_ext_time = ""
 
+countPresent = 0 #aman
 copy_min_time=0
 view_min_time=0
 cs_time=0
@@ -66,13 +67,14 @@ global_aoa_time= ""
 global_where_time = ""
 global_filter_predicates_disj = ""
 global_join_time = ""
-global_in_extractor_time = ""
+global_disj_time = ""
 global_nep_time = ""
 global_filter_time = ""
 global_groupby_time = ""
 global_orderby_time = ""
 global_agg_time = ""
 global_limit_time = ""
+global_oj_time = ""
 global_assemble_time=""
 
 global_conn = None
@@ -104,6 +106,7 @@ global_pk_dict = {}
 global_index_dict = {}
 
 global_AoA = 0
+algebraic_pred_attributes = []
 global_proj = []
 
 global_core_sizes ={}
@@ -112,6 +115,7 @@ global_join_graph = []
 global_filter_predicates = []
 global_filter_aeq = []
 global_filter_aoa = []
+global_filter_dormant = []
 global_projected_attributes = []
 global_groupby_attributes = []
 global_aggregated_attributes = []
@@ -142,4 +146,10 @@ local_start_time = ''
 local_end_time = ''
 
 outer_join_flag = False
-seed_sample_size_per =1
+nep_flag = False
+nep_start_time = 0
+seed_sample_size_per = 1
+final_edge_seq =[]
+sem_eq_queries= []
+sem_eq_listdict= []
+check_nep_again = True

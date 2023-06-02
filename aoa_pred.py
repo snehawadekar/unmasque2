@@ -1,4 +1,5 @@
 import os
+from itertools import combinations
 import sys
 import csv
 import copy
@@ -108,6 +109,7 @@ def extract_aoa():
     #step1
     # for checking possibility of equality condition between two attributes
     start_time = time.time()
+    evaluated_list = []
     for pred in C:
         print("Step 1")
         chk = 0
@@ -133,7 +135,12 @@ def extract_aoa():
                     chk = 1
                     pos_e.append(c)
             if chk == 1:
-                aeqa(pred[0], pred[1], pos_e)
+                if (pred[0], pred[1]) not in evaluated_list:
+                    aeqa(pred[0], pred[1], pos_e)
+                    evaluated_list.append((pred[0], pred[1]))
+                    for e in pos_e:
+                        evaluated_list.append(e)
+    print(pos_e)
     end_time = time.time()
     # print("Join with AoA time: ", end_time - start_time)
     print("Step1: ", time.time() - reveal_globals.local_start_time) #aman
@@ -216,8 +223,9 @@ def extract_aoa():
                     prev = prev[0]
                     
                     cur.close()
+                    print(c)
                     print(reveal_globals.global_attrib_types_dict[(c[0],c[1])])
-                    if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
+                    if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])] :
                         val = int(prev) #for INT type
                         if type(pred[3]) == type(val):
                             if pred[3] == val-1:
@@ -251,7 +259,10 @@ def extract_aoa():
                 isAoA = ainea(0, 0, pred[0], pred[1], pos_ge, '>=')
             if chk4 == 1:
                 isAoA = ainea(0, 0, pred[0], pred[1], pos_g, '>')
-    
+            print(pos_g)
+            print(pos_ge)
+    # print(pos_le)
+    # print(pos_l)
     
     print("Step2: ", time.time() - reveal_globals.local_start_time) #aman
     
@@ -289,6 +300,7 @@ def extract_aoa():
     stack = []
     for att in topo_order:
         cur = reveal_globals.global_conn.cursor()
+        print( 'Select ' + toAtt[att][1] + ' from ' + toAtt[att][0] + ';' )
         cur.execute('Select ' + toAtt[att][1] + ' from ' + toAtt[att][0] + ';')
         prev = cur.fetchone()
         prev = prev[0]
@@ -296,16 +308,19 @@ def extract_aoa():
         if 'int' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
             val = int(prev)
             cur = reveal_globals.global_conn.cursor()
+            print( 'Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(min_int_val+i) + ';' )
             cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(min_int_val+i) + ';') #for integer domain
             cur.close()
-        if 'numeric' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
+        elif 'numeric' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
             val = int(prev)
             cur = reveal_globals.global_conn.cursor()
+            print( 'Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(min_int_val+i) + ';' )
             cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(min_int_val+i) + ';') #for integer domain
             cur.close()
         elif 'date' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
             val = reveal_globals.global_d_plus_value[toAtt[att][1]]
             cur = reveal_globals.global_conn.cursor()
+            print( "Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(min_date_val+datetime.timedelta(days= i)) + "';" )
             cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(min_date_val+datetime.timedelta(days= i)) + "';") #for date domain
             cur.close()
         stack.insert(0,att)
@@ -317,6 +332,7 @@ def extract_aoa():
                 while int(right - left) > 0:#left < right:
                     mid = left + int(math.floor((right-left)/2))
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';')
                     cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') #for integer domain
                     cur.close()
                     new_res = executable.getExecOutput()
@@ -326,6 +342,7 @@ def extract_aoa():
                         right = mid
                     mid = int(math.ceil((left+right)/2))
                 cur = reveal_globals.global_conn.cursor()
+                print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(right) + ';')
                 cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(right) + ';') #for integer domain
                 cur.close()
             elif 'numeric' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:#sneha
@@ -334,6 +351,7 @@ def extract_aoa():
                 while int(right - left) > 0:#left < right:
                     mid = left + int(math.floor((right-left)/2))
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') 
                     cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') #for integer domain
                     cur.close()
                     new_res = executable.getExecOutput()
@@ -343,6 +361,7 @@ def extract_aoa():
                         right = mid
                     mid = int(math.ceil((left+right)/2))
                 cur = reveal_globals.global_conn.cursor()
+                print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(right) + ';') 
                 cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(right) + ';') #for integer domain
                 cur.close()
             elif 'date' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
@@ -352,6 +371,7 @@ def extract_aoa():
                     # print(left, mid, right)
                     mid = left + datetime.timedelta(days= int(math.floor(((right - left).days)/2)))
                     cur = reveal_globals.global_conn.cursor()
+                    print("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(mid) + "';") 
                     cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(mid) + "';") #for date domain
                     cur.close()
                     new_res = executable.getExecOutput()
@@ -360,6 +380,7 @@ def extract_aoa():
                     else:
                         right = mid
                 cur = reveal_globals.global_conn.cursor()
+                print("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(right) + "';") 
                 cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(right) + "';") #for date domain
                 cur.close()
             chk3 = 0
@@ -373,6 +394,7 @@ def extract_aoa():
                     continue
                 # SQL QUERY for checking value
                 cur = reveal_globals.global_conn.cursor()
+                print("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
                 cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
                 prev = cur.fetchone()
                 prev = prev[0]
@@ -410,7 +432,7 @@ def extract_aoa():
     
     
     
-    #reverse topo order
+    ##################reverse topo order
     i = 0
     for tab in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
@@ -419,6 +441,8 @@ def extract_aoa():
         cur.close()
     for att in stack:
         cur = reveal_globals.global_conn.cursor()
+        print('Select ' + toAtt[att][1] + ' from ' + toAtt[att][0] + ';')
+        
         cur.execute('Select ' + toAtt[att][1] + ' from ' + toAtt[att][0] + ';')
         prev = cur.fetchone()
         prev = prev[0]
@@ -426,11 +450,13 @@ def extract_aoa():
         if 'int' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
             val = int(prev)
             cur = reveal_globals.global_conn.cursor()
+            print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(max_int_val-i) + ';') #for integer domains
             cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(max_int_val-i) + ';') #for integer domain
             cur.close()
         elif 'date' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
             val = reveal_globals.global_d_plus_value[toAtt[att][1]]
             cur = reveal_globals.global_conn.cursor()
+            print("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(max_date_val-datetime.timedelta(days= i)) + "';") #for date domain
             cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(max_date_val-datetime.timedelta(days= i)) + "';") #for date domain
             cur.close()
         new_res = executable.getExecOutput()
@@ -441,6 +467,8 @@ def extract_aoa():
                 while int((right - left)) > 0:#left < right:
                     mid = left + int(math.ceil((right-left)/2))
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') #for integer domain
+                    
                     cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(mid) + ';') #for integer domain
                     cur.close()
                     new_res = executable.getExecOutput()
@@ -449,6 +477,8 @@ def extract_aoa():
                     else:
                         left = mid
                 cur = reveal_globals.global_conn.cursor()
+                print('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(left) + ';') #for integer domain
+                
                 cur.execute('Update ' + toAtt[att][0] + ' set ' + toAtt[att][1] + ' = ' + str(left) + ';') #for integer domain
                 cur.close()
             elif 'date' in reveal_globals.global_attrib_types_dict[(toAtt[att][0],toAtt[att][1])]:
@@ -457,6 +487,8 @@ def extract_aoa():
                 while int((right - left).days) > 0:#left < right:
                     mid = left + datetime.timedelta(days= int(math.ceil(((right - left).days)/2)))
                     cur = reveal_globals.global_conn.cursor()
+                    print("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(mid) + "';") #for date domain
+                    
                     cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(mid) + "';") #for date domain
                     cur.close()
                     new_res = executable.getExecOutput()
@@ -465,6 +497,8 @@ def extract_aoa():
                     else:
                         left = mid
                 cur = reveal_globals.global_conn.cursor()
+                print("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(left) + "';") #for date domain
+
                 cur.execute("Update " + toAtt[att][0] + " set " + toAtt[att][1] + " = '" + str(left) + "';") #for date domain
                 cur.close()
             chk1 = 0
@@ -478,6 +512,8 @@ def extract_aoa():
                     continue
                 # SQL QUERY for checking value
                 cur = reveal_globals.global_conn.cursor()
+                print("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
+
                 cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
                 prev = cur.fetchone()
                 prev = prev[0]
@@ -496,6 +532,7 @@ def extract_aoa():
                     chk1 = 1
                     pos_le.append(c)
             if chk1 == 1:
+                # flag = 1
                 isAoA1 = ainea(1, i, pred[0], pred[1], pos_le, '<=')
             if chk2 == 1:
                 isAoA2 = ainea(1, i, pred[0], pred[1], pos_l, '<')
@@ -519,14 +556,31 @@ def extract_aoa():
     #sneha 
     for tab in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
-        cur.execute('Drop table if exists new_' + tab + ';') 
+        # below line is temporarily comented
+        # cur.execute('Drop table if exists new_' + tab + ';') 
         cur.close()
         
     return
 
 #referenced only in extract_aoa
 def aeqa(tab, col, pos): #A=A
+    
+    ##############sneha
+    comb = []
+    # temp = []
+    for r in range(1,len(pos)+1):
+        
+        t = (list(combinations(pos, r)))
+        for ele in t :
+            temp = [(tab,col)]
+            for item in ele:
+                temp.append(item)
+            comb.append(temp)
+    ##############
+    
+    
     chk = 0
+    val = 0
     cur = reveal_globals.global_conn.cursor()
     cur.execute("SELECT " + col + " FROM new_" + tab + " ;")
     prev = cur.fetchone()
@@ -537,39 +591,51 @@ def aeqa(tab, col, pos): #A=A
     elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
         val = reveal_globals.global_d_plus_value[col] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
     
-    
-    for c in pos:
-        # SQL Query for inc c's val
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("delete from "+ c[0] + ";")
-        cur.execute("Insert into " + c[0] + " select * from new_" + c[0] + ";")
-        cur.execute("delete from "+ tab + ";")
-        cur.execute("Insert into " + tab + " select * from new_" + tab + ";")
-        cur.close()  
-            
-        if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
+    for item in comb:
+        for c in item:
+            # SQL Query for inc c's val
             cur = reveal_globals.global_conn.cursor()
-            cur.execute("update " + tab + " set " + col + " = " + str(val+1) + " ;")
-            cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val+1) + " ;")
-            cur.close()
-        elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
-            cur = reveal_globals.global_conn.cursor()
-            cur.execute("update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
-            cur.execute("update " + c[0] + " set " + c[1] + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
-            cur.close()
+            cur.execute("delete from "+ c[0] + ";")
+            cur.execute("Insert into " + c[0] + " select * from new_" + c[0] + ";")
+            # cur.execute("delete from "+ tab + ";")
+            # cur.execute("Insert into " + tab + " select * from new_" + tab + ";")
+            cur.close()  
+                
+            if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
+                cur = reveal_globals.global_conn.cursor()
+                # cur.execute("update " + tab + " set " + col + " = " + str(val+1) + " ;")
+                print("update " + c[0] + " set " + c[1] + " = " + str(val+1) + " ;")
+                
+                cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val+1) + " ;")
+                cur.close()
+            elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
+                cur = reveal_globals.global_conn.cursor()
+                # cur.execute("update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
+                print("update " + c[0] + " set " + c[1] + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
+
+                cur.execute("update " + c[0] + " set " + c[1] + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
+                cur.close()
         new_result = executable.getExecOutput()
         # print("aeqa, new_result length: ", len(new_result), tab, col, c[0], c[1])
         # print("new_result: ", new_result)
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("update " + tab + " set " + col + " = " + str(val) + " ;")
-        cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val) + " ;")
-        cur.close()
+        for c in item:
+            cur = reveal_globals.global_conn.cursor()
+            # cur.execute("update " + tab + " set " + col + " = " + str(val) + " ;")
+            cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val) + " ;")
+            cur.close()
         # if len(new_result) < 2:
         #     time.sleep(100)
         #     new_result = executable.getExecOutput()
         if len(new_result) > 1:
             chk = 1
-            reveal_globals.global_filter_aeq.append((tab, col, '=', c[0], c[1]))
+            temp_item = copy.deepcopy(item)
+            temp_item.pop(0)
+            temp = []
+            temp.append(col)
+            for c in temp_item:
+                reveal_globals.global_filter_aeq.append((tab, col, '=', c[0], c[1]))
+                temp.append(c[1])
+            reveal_globals.global_join_graph.append(temp)
             break
             #return 1
     if chk == 0:
@@ -582,6 +648,8 @@ def ainea(flag, ofst, tab, col, pos, op): #AoA, op={<,<=,>,>=}
     mark = 0
     for c in pos:
         cur = reveal_globals.global_conn.cursor()
+        print("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
+        
         cur.execute("SELECT " + c[1] + " FROM new_" + c[0] + " ;")
         prev = cur.fetchone()
         prev = prev[0]
@@ -592,11 +660,16 @@ def ainea(flag, ofst, tab, col, pos, op): #AoA, op={<,<=,>,>=}
             val = reveal_globals.global_d_plus_value[c[1]] #datetime.strptime(prev, '%y-%m-%d') #for DATE type
         # SQL Query for inc c's val
         cur = reveal_globals.global_conn.cursor()
+        print("delete from "+ c[0] + ";")
+        print("Insert into " + c[0] + " select * from new_" + c[0] + ";")
+                
         cur.execute("delete from "+ c[0] + ";")
         cur.execute("Insert into " + c[0] + " select * from new_" + c[0] + ";")
         cur.close()
         if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
             cur = reveal_globals.global_conn.cursor()
+            print("update " + c[0] + " set " + c[1] + " = " + str(val+1) + " ;")
+            
             cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val+1) + " ;")
             cur.close()
         elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
@@ -604,6 +677,7 @@ def ainea(flag, ofst, tab, col, pos, op): #AoA, op={<,<=,>,>=}
             # print(c[1], reveal_globals.global_d_plus_value[c[1]])
             # print("new value", val+datetime.timedelta(days= 1))
             cur = reveal_globals.global_conn.cursor()
+            print("update " + c[0] + " set " + c[1] + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
             cur.execute("update " + c[0] + " set " + c[1] + " = '" + str(val+datetime.timedelta(days= 1)) + "' ;")
             cur.close()
         new_result = executable.getExecOutput()
@@ -611,15 +685,22 @@ def ainea(flag, ofst, tab, col, pos, op): #AoA, op={<,<=,>,>=}
             new_filter = where_clause.get_filter_predicates()
         else:
             cur = reveal_globals.global_conn.cursor()
+            print("delete from "+ c[0] + ";")
+            print("Insert into " + c[0] + " select * from new_" + c[0] + ";")
+            
             cur.execute("delete from "+ c[0] + ";")
             cur.execute("Insert into " + c[0] + " select * from new_" + c[0] + ";")
             cur.close()
             if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                 cur = reveal_globals.global_conn.cursor()
+                print("update " + c[0] + " set " + c[1] + " = " + str(val-1) + " ;")
+                
                 cur.execute("update " + c[0] + " set " + c[1] + " = " + str(val-1) + " ;")
                 cur.close()
             elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                 cur = reveal_globals.global_conn.cursor()
+                print("update " + c[0] + " set " + c[1] + " = '" + str(val-datetime.timedelta(days= 1)) + "' ;")
+                
                 cur.execute("update " + c[0] + " set " + c[1] + " = '" + str(val-datetime.timedelta(days= 1)) + "' ;")
                 cur.close()
             new_filter = where_clause.get_filter_predicates()
@@ -633,99 +714,195 @@ def ainea(flag, ofst, tab, col, pos, op): #AoA, op={<,<=,>,>=}
             if orig_pred[0] == tab and orig_pred[1] and col:
                 orig = orig_pred
                 break;
+            
         if new != orig:
             mark += 1
-            reveal_globals.global_filter_aoa.append((tab,col,op,c[0],c[1]))
-            if flag == 1 and (op == '<=' or op == '<'):
+            if flag ==2:
+                reveal_globals.global_filter_dormant.append((tab,col,op,c[0],c[1]))
+            else:
+                reveal_globals.global_filter_aoa.append((tab,col,op,c[0],c[1]))
+            if (flag == 1 or flag == 2 ) and (op == '<=' or op == '<'):
                 if 'int' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(max_int_val-ofst-mark) + ';') #for integer domain
+                    
                     cur.execute('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(max_int_val-ofst-mark) + ';') #for integer domain
                     cur.close()
                 elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                     xyz = ofst+mark
                     cur = reveal_globals.global_conn.cursor()
+                    print("Update " + c[0] + " set " + c[1] + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
+                    
                     cur.execute("Update " + c[0] + " set " + c[1] + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
                     cur.close()
                 # run executable
                 new_chk_res = executable.getExecOutput()
                 if len(new_chk_res) < 2:
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(val) + ';')
+                    
                     cur.execute('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(val) + ';')
                     cur.close()
                     if 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]: #for date datatypes
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(val-datetime.timedelta(days= 1)) + "';")
+                        
                         cur.execute("Update " + tab + " set " + col + " = '" + str(val-datetime.timedelta(days= 1)) + "';")
                         cur.close()
                     else: #for int datatype
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(val-1) + ';')
+                        
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(val-1) + ';')
                         cur.close()
                 else:
                     if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(max_int_val-ofst-mark-1) + ';') #for integer domain
+
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(max_int_val-ofst-mark-1) + ';') #for integer domain
                         cur.close()
                     elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         xyz = ofst+mark+1
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
+
                         cur.execute("Update " + tab + " set " + col + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
                         cur.close()
                 new_chk_res = executable.getExecOutput()
                 if len(new_chk_res) < 2:
                     if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(val-1) + ';') #for integer domain
+
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(val-1) + ';') #for integer domain
                         cur.close()
                     elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(val-datetime.timedelta(days= 1)) + "';") #for date domain
+
                         cur.execute("Update " + tab + " set " + col + " = '" + str(val-datetime.timedelta(days= 1)) + "';") #for date domain
                         cur.close()
                 mark += 2
-            elif flag == 1 and (op == '>=' or op == '>'):
+            elif (flag == 1 or flag == 2 ) and (op == '>=' or op == '>'):
                 if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(min_int_val+ofst+mark) + ';') #for integer domain
+
                     cur.execute('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(min_int_val+ofst+mark) + ';') #for integer domain
                     cur.close()
                 elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                     xyz = ofst+mark
                     cur = reveal_globals.global_conn.cursor()
+                    print("Update " + c[0] + " set " + c[1] + " = '" + str(min_date_val+datetime.timedelta(days= xyz)) + "';") #for date domain
+
                     cur.execute("Update " + c[0] + " set " + c[1] + " = '" + str(min_date_val+datetime.timedelta(days= xyz)) + "';") #for date domain
                     cur.close()
                 # run executable
                 new_chk_res = executable.getExecOutput()
                 if len(new_chk_res) < 2:
                     cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(val) + ';')
+
                     cur.execute('Update ' + c[0] + ' set ' + c[1] + ' = ' + str(val) + ';')
                     cur.close()
                     if 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]: #for date datatypes
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "';")
+
                         cur.execute("Update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "';")
                         cur.close()
                     else: #for int datatype
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(val+1) + ';')
+
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(val+1) + ';')
                         cur.close()
                 else:
                     if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(max_int_val-ofst-mark+1) + ';') #for integer domain
+
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(max_int_val-ofst-mark+1) + ';') #for integer domain
                         cur.close()
                     elif 'date' in reveal_globals.global_attrib_types_dict[(c[0],c[1])]:
                         xyz = ofst+mark-1
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
+
                         cur.execute("Update " + tab + " set " + col + " = '" + str(max_date_val-datetime.timedelta(days= xyz)) + "';") #for date domain
                         cur.close()
                 new_chk_res = executable.getExecOutput()
                 if len(new_chk_res) < 2:
                     if 'int' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print('Update ' + tab + ' set ' + col + ' = ' + str(val+1) + ';') #for integer domain
+
                         cur.execute('Update ' + tab + ' set ' + col + ' = ' + str(val+1) + ';') #for integer domain
                         cur.close()
                     elif 'date' in reveal_globals.global_attrib_types_dict[(tab,col)]:
                         cur = reveal_globals.global_conn.cursor()
+                        print("Update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "';") #for date domain
+
                         cur.execute("Update " + tab + " set " + col + " = '" + str(val+datetime.timedelta(days= 1)) + "';") #for date domain
                         cur.close()
                 mark += 2
+            # if flag ==2:
+                
+                
     if mark != 0:
         return mark 
     return 0
+
+
+def dormant_extractor():
+    
+    print(reveal_globals.global_filter_predicates)
+    filter_predicates = reveal_globals.global_filter_predicates
+    
+    for i in range(len(filter_predicates)):
+        # set fp[i] at min value
+        # set remaining at max value 
+        # check for existance of doemant predicate
+        for k in range(len(filter_predicates)):
+            print(reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])])
+            if k == i:
+                if 'int' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])] or 'numeric' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])]:
+                    cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + filter_predicates[k][0] + ' set ' + filter_predicates[k][1] + ' = ' + str(filter_predicates[k][3]) + ';') #for integer domains
+                    cur.execute('Update ' + filter_predicates[k][0] + ' set ' + filter_predicates[k][1] + ' = ' + str(filter_predicates[k][3]) + ';')
+                    cur.close()
+                elif 'date' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])]:
+                    cur = reveal_globals.global_conn.cursor()
+                    print(" Update " + filter_predicates[k][0] + " set " + filter_predicates[k][1] + " = " + str(filter_predicates[k][3]) + ";") #for integer domains
+                    cur.execute(" Update " + filter_predicates[k][0] + " set " + filter_predicates[k][1] + " = ' " + str(filter_predicates[k][3]) + "' ;")
+                    cur.close()
+            else:
+                if 'int' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])] or 'numeric' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])]:
+                    cur = reveal_globals.global_conn.cursor()
+                    print('Update ' + filter_predicates[k][0] + ' set ' + filter_predicates[k][1] + ' = ' + str(filter_predicates[k][4]) + ';') #for integer domains
+                    cur.execute('Update ' + filter_predicates[k][0] + ' set ' + filter_predicates[k][1] + ' = ' + str(filter_predicates[k][4]) + ';')
+                    cur.close()
+                elif 'date' in reveal_globals.global_attrib_types_dict[(filter_predicates[k][0] ,filter_predicates[k][1])]:
+                    cur = reveal_globals.global_conn.cursor()
+                    print("Update " + filter_predicates[k][0] + " set " + filter_predicates[k][1] + " = ' " + str(filter_predicates[k][4]) + " ';") #for integer domains
+                    cur.execute("Update " + filter_predicates[k][0] + " set " + filter_predicates[k][1] + " = ' " + str(filter_predicates[k][4]) + " ';")
+                    cur.close()
+
+                
+        new_result = executable.getExecOutput()
+        if len(new_result) <= 1:
+            print("dormant pred exists", filter_predicates[i])
+            pos_ge = []
+            for pred in range(len(filter_predicates)):
+                if i != pred:
+                    pos_ge.append((filter_predicates[pred][0],filter_predicates[pred][1]))
+                    
+            isAoA = ainea(2, 0, filter_predicates[i][0], filter_predicates[i][1], pos_ge, filter_predicates[i][2])
+            # isAoA = ainea(0, 0, filter_predicates[i][0], filter_predicates[i][1], pos_ge, '<=')
+            print("---------------")
+                    
+              
+            
+            
+            

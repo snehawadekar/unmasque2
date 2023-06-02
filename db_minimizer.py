@@ -4,7 +4,7 @@ import time
 import copy
 import math
 import executable
-sys.path.append('../') 
+import check_nullfree 
 import reveal_globals
 import pandas as pd
 
@@ -20,7 +20,7 @@ def getCoreSizes(core_relations):
 	# 	except Exception as error:
 	# 		print("Error in getting table Sizes. Error: " + str(error))
    
-    sf = 100
+    sf = 1
     reveal_globals.global_core_sizes= {
         'nation' : 25,
         'region' :5,
@@ -72,9 +72,10 @@ def sample_Database_Instance(core_relations, sample_size_percent, sample_thresho
                     index_no = index_no + 1
                 cur.close()
                 #Run query and analyze the result now
-                new_result = executable.getExecOutput()
+                # new_result = executable.getExecOutput()
+                
                 reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-                if len(new_result) <= 1:
+                if check_nullfree.getExecOutput() == True : #if len(new_result) <= 1:
                     if (sample_iter == max_sample_iter - 1):
                         print("Sampling failed for " + tabname + " after "  + str(max_sample_iter) + ' iterations. Going for a full copy now.')
                         cur = reveal_globals.global_conn.cursor()
@@ -128,7 +129,9 @@ def sample_Database_Instance(core_relations, sample_size_percent, sample_thresho
 def reduce_Database_Instance(core_relations, method = 'binary partition', max_no_of_rows = 1, executable_path = ""):
     reveal_globals.local_other_info_dict = {}
     #Perform sampling
-    core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
+    core_sizes = getCoreSizes(core_relations)
+    # core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
+    print(check_nullfree.getExecOutput())
     #STORE STARTING POINT(OFFSET) AND NOOFROWS(LIMIT) FOR EACH TABLE IN FORMAT (offset, limit)
     partition_dict = {}
     for key in core_sizes.keys():
@@ -163,9 +166,10 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
             index_no = index_no + 1
         cur.close()
         #Run query and analyze the result now
-        new_result = executable.getExecOutput()
+        # new_result = executable.getExecOutput()
         reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-        if len(new_result) > 1:
+        # if len(new_result) > 1:
+        if check_nullfree.getExecOutput() == True :
             cur = reveal_globals.global_conn.cursor()
             cur.execute('drop table temp;')
             partition_dict[tabname] = (0, int(partition_dict[tabname][1]/2))
@@ -221,8 +225,16 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
         # cur.execute("copy " + tabname + " to " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
         cur.close()
     #SANITY CHECK
+    cur = reveal_globals.global_conn.cursor()
+    query=reveal_globals.query1
+    cur.execute(query)
+    res = cur.fetchall() 
+    print("Results afted DB minimization")
+    print(res)
+    cur.close()
     new_result = executable.getExecOutput()
-    if len(new_result) <= 1:
+    # if len(new_result) <= 1:
+    if check_nullfree.getExecOutput() == False :
         print("Error: Query out of extractable domain\n")
         return False
     #populate screen data
@@ -237,6 +249,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
         for index, row in df.iterrows():
             reveal_globals.global_min_instance_dict[tabname].append(tuple(row))
     #populate other data
+    new_result = executable.getExecOutput()
     reveal_globals.global_result_dict['min'] = copy.deepcopy(new_result)
     reveal_globals.local_other_info_dict['Result Cardinality'] = str(len(new_result) - 1)
     reveal_globals.global_other_info_dict['min'] = copy.deepcopy(reveal_globals.local_other_info_dict)

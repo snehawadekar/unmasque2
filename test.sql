@@ -100,3 +100,54 @@ Select l_shipmode From lineitem, partsupp Where ps_partkey = l_partkey and ps_su
 Select l_orderkey, l_linenumber From orders, lineitem, partsupp Where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate > '1994-01-01' Order By l_orderkey Limit 7;
 
 Select s name, count(*) as numwait From supplier, lineitem, orders, nation Where s suppkey = l_suppkey and o_orderkey = l_orderkey and o_orderstatus = 'F' and l_receiptdate >= l_commitdate and s nationkey = n nationkey Group By s name Order By numwait desc Limit 100;
+
+
+Select s_name, count(*) 
+From supplier 
+left outer join lineitem ON s_suppkey = l_suppkey  
+right outer join orders ON o_orderkey = l_orderkey
+right outer join nation ON s_nationkey = n_nationkey
+Where ( o_orderstatus = 'F' or o_orderstatus = 'P') 
+and l_receiptdate >= l_commitdate and l_returnflag <> 'N' 
+Group By s_name Limit 100;
+
+
+Select l_shipmode, count(l_returnflag) From lineitem left outer join partsupp On ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber  Where (l_returnflag = 'R' or l_quantity > 20) and l_shipmode NOT IN ('AIR', 'MAIL') Group By l_shipmode Order By l_shipmode Limit 5;
+
+
+SELECT l_shipmode, o_shippriority ,count(o_orderpriority) as low_line_count FROM lineitem LEFT OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice > 50000 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND (l_quantity < 30 ) AND l_returnflag NOT IN ('R', 'N') GROUP BY l_shipmode, o_shippriority Order By l_shipmode ;
+
+SELECT l_shipmode, o_shippriority ,o_orderpriority FROM lineitem LEFT OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice > 50000 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND (l_quantity < 30 ) AND l_returnflag NOT IN ('R', 'N') Order By l_shipmode ;
+
+
+SELECT l_shipmode, o_shippriority ,o_orderpriority FROM lineitem LEFT OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice > 50000 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate ;
+
+SELECT count(*) FROM lineitem left OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice >= 50000 ) WHERE l_orderkey >=1000 AND l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('R', 'N') ;
+
+
+Select count(*) from part inner join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  inner join lineitem on ps_suppkey=l_suppkey and l_quantity<>31 and l_quantity <> 35 WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND (l_returnflag = 'R'  or l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') 
+
+
+
+Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from lineitem LEFT outer join partsupp on ps_suppkey=l_suppkey right outer join part on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') AND (l_returnflag = 'R'  or l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') and l_extendedprice < 100000 and p_size <>7  
+
+create join index in2 as select p_partkey,ps_partkey from part inner join partsupp on p_partkey=ps_partkey 
+create join index in3 as select ps_suppkey, l_suppkey from partsupp inner join lineitem on ps_suppkey=l_suppkey 
+create index index_part on part (p_partkey);
+create index index_partsupp on partsupp(p_partkey);
+create index index_partsupp_suppkey on partsupp(ps_suppkey);
+create index index_lineitem_suppkey on lineitem (l_suppkey);
+
+create index index_lineitem_date on lineitem (l_commitdate, l_receiptdate);
+create index index_lineitem_quantity on lineitem (l_quantity);
+
+
+
+14:36
+Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From lineitem Left Outer Join partsupp ON l_suppkey = ps_suppkey  Inner Join part ON ps_partkey = p_partkey and (ps_availqty >= 3351  OR p_size >= 5 ) Where (l_quantity >= 20.0 or l_returnflag = 'R') and (l_shipmode = 'AIR       ' or l_shipmode = 'SHIP      ' or l_shipmode = 'FOB       ' or l_shipmode = 'RAIL      ' or l_shipmode = 'MAIL      ' or l_shipmode = 'TRUCK     ') and l_returnflag <> 'N'  and l_quantity <> 35.00 and l_returnflag <> 'A'  and l_quantity <> 31.00 and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate 
+Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From partsupp Right Outer Join lineitem ON ps_suppkey = l_suppkey  Inner Join part ON ps_partkey = p_partkey and (ps_availqty >= 3351  OR p_size >= 5 ) Where (l_quantity >= 20.0 or l_returnflag = 'R') and (l_shipmode = 'AIR       ' or l_shipmode = 'SHIP      ' or l_shipmode = 'FOB       ' or l_shipmode = 'RAIL      ' or l_shipmode = 'MAIL      ' or l_shipmode = 'TRUCK     ') and l_returnflag <> 'N'  and l_quantity <> 35.00 and l_returnflag <> 'A'  and l_quantity <> 31.00 and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate 
+Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From part Inner Join partsupp ON p_partkey = ps_partkey and (ps_availqty >= 3351  OR p_size >= 5 )  Right Outer Join lineitem ON ps_suppkey = l_suppkey Where (l_quantity >= 20.0 or l_returnflag = 'R') and (l_shipmode = 'AIR       ' or l_shipmode = 'SHIP      ' or l_shipmode = 'FOB       ' or l_shipmode = 'RAIL      ' or l_shipmode = 'MAIL      ' or l_shipmode = 'TRUCK     ') and l_returnflag <> 'N'  and l_quantity <> 35.00 and l_returnflag <> 'A'  and l_quantity <> 31.00 and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate 
+
+"Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From lineitem Left Outer Join partsupp ON l_suppkey = ps_suppkey  Inner Join part ON ps_partkey = p_partkey Where (l_returnflag = 'R' or l_quantity >= 20.0) and (l_shipmode = 'AIR       ' or p_size >= 5) and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate "
+"Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From partsupp Right Outer Join lineitem ON ps_suppkey = l_suppkey  Inner Join part ON ps_partkey = p_partkey Where (l_returnflag = 'R' or l_quantity >= 20.0) and (l_shipmode = 'AIR       ' or p_size >= 5) and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate "
+"Select ps_suppkey as ps_suppkey, l_suppkey, p_partkey, ps_partkey as ps_partkey, l_quantity, ps_availqty, p_size From part Inner Join partsupp ON p_partkey = ps_partkey  Right Outer Join lineitem ON ps_suppkey = l_suppkey Where (l_returnflag = 'R' or l_quantity >= 20.0) and (l_shipmode = 'AIR       ' or p_size >= 5) and l_commitdate <= l_receiptdate  and l_receiptdate >= l_commitdate "

@@ -25,8 +25,28 @@ def restore_database_instance():
 			cur.close()
 		except:
 			pass
-	#hardcoding for demo
 	
+	if reveal_globals.global_conn is not None:
+		reveal_globals.global_conn.close()
+		reveal_globals.global_conn = None
+	reveal_globals.global_restore_flag = True
+
+	return 
+
+ 
+def del_d1():
+	print("deleting tabname4")
+	for tabname in reveal_globals.global_core_relations:
+		try:
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute('drop table ' + tabname + '4;')
+			cur.close()
+		except:
+			pass
+
+
+def delete_conn():
+    	
 	if reveal_globals.global_conn is not None:
 		reveal_globals.global_conn.close()
 		reveal_globals.global_conn = None

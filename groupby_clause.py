@@ -1,13 +1,16 @@
+import sys
 try:
 	import psycopg2
 except ImportError:
 	pass
 
+sys.path.append('../')
 
 import reveal_globals
 import datetime
-import itertools
+import csv
 import copy
+import itertools
 import executable
 
 

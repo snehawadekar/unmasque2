@@ -4,29 +4,17 @@ import time
 import  copy
 import psycopg2
 import psycopg2.extras
-# import check_nullfree
+import check_nullfree
 
 def getCoreSizes_cs(core_relations):
-    # core_sizes = {}
-    # for table in core_relations:
-    #     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    #     cur.execute('select count(*) from ' + table + ';')
-    #     res = cur.fetchone()
-    #     cnt = int(str(res[0]))
-    #     core_sizes[table] = cnt
-    # reveal_globals.global_core_sizes= core_sizes
-    reveal_globals.sf 
-    reveal_globals.global_core_sizes= {
-        'nation' : 25,
-        'region' :5,
-        'part' : 200000* reveal_globals.sf ,
-        'partsupp' : 800000 * reveal_globals.sf ,
-        'lineitem' : 6000000 * reveal_globals.sf ,
-        'orders' : 1500000 * reveal_globals.sf ,
-        'supplier' : 10000 * reveal_globals.sf ,
-        'customer' : 150000 * reveal_globals.sf ,
-        
-    }
+    core_sizes = {}
+    for table in core_relations:
+        cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute('select count(*) from ' + table + ';')
+        res = cur.fetchone()
+        cnt = int(str(res[0]))
+        core_sizes[table] = cnt
+    reveal_globals.global_core_sizes= core_sizes
 
 
 def correlated_sampling_start():
@@ -146,16 +134,16 @@ def correlated_sampling():
             res = cur.fetchone()
             print(table, res)
             
-    for table in reveal_globals.global_core_relations:
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("select count(*) from " + table + ";")
-        res = cur.fetchone()
-        print(table, res)
+    # for table in reveal_globals.global_core_relations:
+    #     cur = reveal_globals.global_conn.cursor()
+    #     cur.execute("select count(*) from " + table + ";")
+    #     res = cur.fetchone()
+    #     print(table, res)
         
     #check for null free rows and not just nonempty results 
-    new_result= executable.getExecOutput()
+    # new_result= executable.getExecOutput()
     
-    if len(new_result) <= 1:
+    if check_nullfree.getExecOutput() == False :
         print('sampling failed in iteraation')
         cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         for table in reveal_globals.global_core_relations:
@@ -163,8 +151,7 @@ def correlated_sampling():
         cur.close()
         return False
     else:
-        # drop original tables
-        # convert views to tables 
+
         return True
     
     
