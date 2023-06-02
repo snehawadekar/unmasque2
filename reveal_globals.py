@@ -23,7 +23,7 @@ mini_type = "no-kapil"
 
 global_os_name = "linux"
 global_db_engine_dropdown = ('Microsoft SQL Server', 'PostgreSQL')
-global_db_instance_dropdown = ('tpch1GB', 'tpch10GB', 'tpch_ojGB', 'tpch1TB', 'tpcds1GB', 'tpcds10GB', 'tpcds100GB', 'tpcds1TB')
+global_db_instance_dropdown = ('tpch1GB', 'tpch_ojGB', 'tpch_ojGB', 'tpch1TB', 'tpcds1GB', 'tpcds10GB', 'tpcds100GB', 'tpcds1TB')
 global_qh = ""
 global_qe_save_path = ""
 global_qe_save_checkbox = ""

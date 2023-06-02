@@ -343,21 +343,22 @@ def get_input_query():
     # extracted correctly
     # 12 min to run on 1 gb database 
     # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
-    # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
 
     # faster and simpler version
-    # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from lineitem LEFT outer join partsupp on ps_suppkey=l_suppkey right outer join part on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 ) WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') AND (l_returnflag = 'R'  or l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') and l_extendedprice < 100000 and p_size <>7  "
+    reveal_globals.query1 = " Select ps_suppkey, l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9998 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
  
 
     # Q2 - supplier , lineitem orders nation
     # extracted correctly
-    reveal_globals.query1 = " Select * From supplier right outer join lineitem on s_suppkey = l_suppkey and l_receiptdate >= l_commitdate and l_returnflag <> 'R'  left outer join orders on o_orderkey = l_orderkey and ( o_orderstatus = 'F' or o_orderstatus = 'P') left outer join nation on s_nationkey = n_nationkey ; "
-
+    # reveal_globals.query1 = " Select * From supplier right outer join lineitem on s_suppkey = l_suppkey and l_receiptdate >= l_commitdate and l_returnflag <> 'R'  left outer join orders on o_orderkey = l_orderkey and ( o_orderstatus = 'F' or o_orderstatus = 'P') left outer join nation on s_nationkey = n_nationkey ; "
+    # faster and simpler version
     # Q3 - lineitem orders
     
     # reveal_globals.query1 = " SELECT * FROM lineitem right OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice >= 50000 ) WHERE l_orderkey >=1000 AND l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') AND l_commitdate <= l_receiptdate AND l_shipdate <= l_commitdate AND l_receiptdate <= '1995-01-01' AND l_returnflag NOT IN ('R', 'N') ; "
     # extracted correctly
     # reveal_globals.query1 = "SELECT * FROM lineitem left OUTER JOIN orders ON ( l_orderkey = o_orderkey AND o_totalprice >= 50000 ) WHERE l_shipmode IN ('MAIL') AND ( l_extendedprice  >= 50000 or l_quantity <25)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N'); "
+    # faster and simpler version
+    
     # Q4 part partsupplier supplier
     # reveal_globals.query1 = "select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey right outer join lineitem on ps_suppkey=l_suppkey;"
     # reveal_globals.query1 = "select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey  ;"
