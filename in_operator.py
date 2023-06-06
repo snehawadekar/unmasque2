@@ -169,7 +169,9 @@ def in_extract(level=1):
         new_filter_list.append(copy.deepcopy(temp_list))
     print(new_filter_list)
     print('Disjunction Time: '+str(time.time() - global_start))
-    reveal_globals.global_disj_time = time.time() -global_start
+    # reveal_globals.global_disj_time = time.time() -global_start
+    # reveal_globals.global_tot_ext_time += time.time() -global_start
+    
     reveal_globals.global_filter_predicates_disj = copy.deepcopy(new_filter_list)
     cur = reveal_globals.global_conn.cursor()
     for tabname in reveal_globals.global_core_relations:

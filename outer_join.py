@@ -320,7 +320,7 @@ def fn():
         # nep.match_oj(q)   
         # if reveal_globals.nep_flag:
         qr = nep.nep_algorithm(reveal_globals.global_core_relations, q)
-        # print(reveal_globals.sem_eq_queries)
+        print(reveal_globals.sem_eq_queries)
         if qr != False:
             for x in reveal_globals.sem_eq_queries:
                 temp_seq.append(x)

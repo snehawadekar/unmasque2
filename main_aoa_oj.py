@@ -561,7 +561,7 @@ def in_extractor_complete():
     # in_operator.sneha_or()
     print(reveal_globals.global_where_op)
     reveal_globals.local_end_time = time.time()
-    reveal_globals.global_in_extractor_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_disj_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     func_project_start()
     # func_aoa_start()
@@ -679,8 +679,11 @@ def func_limit_Complete():
     func_assemble_start()
     print(reveal_globals.output1)
     st =  time.time()
+    print(" Checking NEP and OJ on initail database")
     check_nep_oj.check_nep_oj(reveal_globals.output1)
     reveal_globals.global_oj_nep_check_time = str(time.time()- st)
+    reveal_globals.global_tot_ext_time +=time.time()- st
+    
   
     if reveal_globals.outer_join_flag == True:
         func_outerjoin_start()

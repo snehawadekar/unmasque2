@@ -348,7 +348,7 @@ def get_input_query():
     # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
 
     # faster and simpler version
-    reveal_globals.query1 = " Select ps_suppkey, l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9998 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
+    reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') limit 1500; "
  
 
     # Q2 - supplier , lineitem orders nation
