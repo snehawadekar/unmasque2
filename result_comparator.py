@@ -144,7 +144,7 @@ def match_comparison_based(Q_E):
 
     # Create an empty table with name temp2
     cur = reveal_globals.global_conn.cursor()
-    cur.execute('Create unlogged table temp2 (like temp1);')
+    cur.execute('Create table temp2 (like temp1);')
     cur.close()
 
     # new_result = executable.getExecOutput()

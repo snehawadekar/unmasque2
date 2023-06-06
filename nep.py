@@ -514,71 +514,119 @@ def extractNEPValue(tabname,i):
 
 def updatedExtractedQuery(tabname,Q_E,i):
     val = extractNEPValue(tabname,i)
-    if(val != False and (val[0][1] not in reveal_globals.algebraic_pred_attributes) and val not in reveal_globals.global_filter_predicates_disj):
-        reveal_globals.check_nep_again = True
-        # add the new predicate to the existing filter predicates
-        reveal_globals.global_filter_predicates_disj.append(val)
-        # for elt in val:
-        #     predicate = ''
-        #     if '-' in str(elt[3]):
-        #         predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
-        #         reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
-        #     elif isinstance(elt[3],str):
-        #         print("+++++",elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
-        #         output = getStrFilterValue(elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
-        #         print(output,"++___++")
-        #         if('%' in output or '_' in output):
-        #             predicate = elt[1] + " NOT LIKE '" + str(output) + "' "
-        #             reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' NOT LIKE '+str(elt[3])
-        #         else:
-        #             predicate = elt[1] + " " + str(elt[2]) + " '" + str(output) + "' "
-        #             reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
-        #     else:
-        #         predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
-        #         reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+    
+    if reveal_globals.outer_join_flag == True:
+        if(val != False and (val[0][1] not in reveal_globals.algebraic_pred_attributes) and val not in reveal_globals.global_filter_predicates_disj):
+            reveal_globals.check_nep_again = True
+            # add the new predicate to the existing filter predicates
+            reveal_globals.global_filter_predicates_disj.append(val)
+            # for elt in val:
+            #     predicate = ''
+            #     if '-' in str(elt[3]):
+            #         predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+            #         reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+            #     elif isinstance(elt[3],str):
+            #         print("+++++",elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
+            #         output = getStrFilterValue(elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
+            #         print(output,"++___++")
+            #         if('%' in output or '_' in output):
+            #             predicate = elt[1] + " NOT LIKE '" + str(output) + "' "
+            #             reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' NOT LIKE '+str(elt[3])
+            #         else:
+            #             predicate = elt[1] + " " + str(elt[2]) + " '" + str(output) + "' "
+            #             reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+            #     else:
+            #         predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+            #         reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
 
-        #     # reveal_globals.global_where_op = dict["where"]
-        #     if reveal_globals.global_where_op == '':
-        #         reveal_globals.global_where_op = predicate
-        #     else:
-        #         reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+            #     # reveal_globals.global_where_op = dict["where"]
+            #     if reveal_globals.global_where_op == '':
+            #         reveal_globals.global_where_op = predicate
+            #     else:
+            #         reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
 
-        
-        # again run formulate queries funtion to get new queries
-        
-        
-        for tab in reveal_globals.global_core_relations:
-            cur = reveal_globals.global_conn.cursor()
-            cur.execute('drop view if exists ' + tab + ';')
-            cur.close()
             
-            cur = reveal_globals.global_conn.cursor()
-            cur.execute('create table ' + tab + ' as select * from '  + tab + '4;')   
-            cur.close()
+            # again run formulate queries funtion to get new queries
             
-        
-        reveal_globals.sem_eq_queries, reveal_globals.sem_eq_listdict = outer_join.FormulateQueries(reveal_globals.final_edge_seq)
-        
-        for tab in reveal_globals.global_core_relations:
             
-            cur = reveal_globals.global_conn.cursor()
-            cur.execute('drop table if exists ' + tab + ';')
-            cur.close()
-        
-            if tab == tabname:
+            for tab in reveal_globals.global_core_relations:
                 cur = reveal_globals.global_conn.cursor()
-                cur.execute('create view ' + tab + ' as select * from '  + tab + '4;')   
-                cur.close()
-            else:
-                cur = reveal_globals.global_conn.cursor()
-                cur.execute('create view ' + tab + ' as select * from '  + tab + '_restore;')   
+                cur.execute('drop view if exists ' + tab + ';')
                 cur.close()
                 
-        
-        return reveal_globals.sem_eq_queries[0]
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('create table ' + tab + ' as select * from '  + tab + '4;')   
+                cur.close()
+                
+            
+            reveal_globals.sem_eq_queries, reveal_globals.sem_eq_listdict = outer_join.FormulateQueries(reveal_globals.final_edge_seq)
+            
+            for tab in reveal_globals.global_core_relations:
+                
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('drop table if exists ' + tab + ';')
+                cur.close()
+            
+                if tab == tabname:
+                    cur = reveal_globals.global_conn.cursor()
+                    cur.execute('create view ' + tab + ' as select * from '  + tab + '4;')   
+                    cur.close()
+                else:
+                    cur = reveal_globals.global_conn.cursor()
+                    cur.execute('create view ' + tab + ' as select * from '  + tab + '_restore;')   
+                    cur.close()
+                    
+            
+            return reveal_globals.sem_eq_queries[0]
+        else:
+            return Q_E
     else:
+        if(val != False and (val[0][1] not in reveal_globals.algebraic_pred_attributes) and val not in reveal_globals.global_filter_predicates_disj):
+            reveal_globals.check_nep_again = True
+            # add the new predicate to the existing filter predicates
+            reveal_globals.global_filter_predicates_disj.append(val)
+            for elt in val:
+                predicate = ''
+                if '-' in str(elt[3]):
+                    predicate = elt[1] + " " + str(elt[2]) + " '" + str(elt[3]) + "' "
+                    reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+                elif isinstance(elt[3],str):
+                    print("+++++",elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
+                    output = getStrFilterValue(elt[0],elt[1],elt[3],reveal_globals.global_attrib_max_length[elt[0],elt[1]])
+                    print(output,"++___++")
+                    if('%' in output or '_' in output):
+                        predicate = elt[1] + " NOT LIKE '" + str(output) + "' "
+                        reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' NOT LIKE '+str(elt[3])
+                    else:
+                        predicate = elt[1] + " " + str(elt[2]) + " '" + str(output) + "' "
+                        reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+                else:
+                    predicate = elt[1] + " " + str(elt[2]) + " " + str(elt[3])
+                    reveal_globals.local_other_info_dict['Conclusion'] = u'Filter Predicate is \u2013 ' + elt[1] +' <> '+str(elt[3])
+
+                # reveal_globals.global_where_op = dict["where"]
+                if reveal_globals.global_where_op == '':
+                    reveal_globals.global_where_op = predicate
+                else:
+                    reveal_globals.global_where_op = reveal_globals.global_where_op + " and " + predicate
+
+            
+            # again run formulate queries funtion to get new queries
+            Q_E = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
+            if reveal_globals.global_where_op.strip() != '':
+                Q_E = Q_E + "\n" + "Where " + reveal_globals.global_where_op
+            if reveal_globals.global_groupby_op.strip() != '':
+                Q_E = Q_E + "\n" + "Group By " + reveal_globals.global_groupby_op
+            if reveal_globals.global_orderby_op.strip() != '':
+                Q_E = Q_E + "\n" + "Order By " + reveal_globals.global_orderby_op
+            if reveal_globals.global_limit_op.strip() != '':
+                Q_E = Q_E + "\n" + "Limit " + reveal_globals.global_limit_op 
+            Q_E = Q_E + ";"
+            print("+++++",Q_E)
+            return Q_E
+        else:
+            return Q_E
         
-        return Q_E
 
 def nep_db_minimizer(tabname,Q_E,core_sizes,partition_dict,i ): 
     print("HELLO")
@@ -589,16 +637,6 @@ def nep_db_minimizer(tabname,Q_E,core_sizes,partition_dict,i ):
     #Base Case
     # if(core_sizes == 1 and match_oj(Q_E,new_result) == False):
     if(core_sizes == 1 and match_oj(Q_E) == False):
-        # for tab in reveal_globals.global_core_relations:
-        #     # if tab != tabname:
-        #     cur = reveal_globals.global_conn.cursor()
-        #     cur.execute('Select count(*) from ' + tab+ ';')
-        #     # cur.execute('truncate view '+ tab +';')
-        #     # cur.execute('Insert into ' + tab + ' select * from ' + tab + '4;')
-        #     res = cur.fetchall()
-        #     print(res)
-        #     cur.close()
-            
 
         return updatedExtractedQuery(tabname,Q_E,i  )   
     
@@ -713,7 +751,11 @@ def nep_algorithm(core_relations, Q_E):
             
             Q_E_ = nep_db_minimizer(tabname,Q_E, core_sizes[tabname], partition_dict[tabname],i)
             if Q_E_ == True:
-                Q_E = reveal_globals.sem_eq_queries[0]
+                if reveal_globals.outer_join_flag == False:
+                    
+                    Q_E = reveal_globals.output1
+                else:
+                    Q_E = reveal_globals.sem_eq_queries[0]
                 
                 # Q_E = Q_E_
             #Run the hidden query on the original database instance

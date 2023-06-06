@@ -8,6 +8,7 @@ import reveal_globals
 import datetime
 import copy
 import executable
+import numpy as np
 
 
 def is_number(s):
@@ -319,6 +320,216 @@ def getProjectedAttributes():
             for val in curr_attrib:
                 newfilterList.remove(val)
             curr_attrib = []
+            
+    
+    new_result = executable.getExecOutput()
+    # idx = 0
+    for idx in range (0,len(projectedAttrib)):
+        if projectedAttrib[idx] == '':
+            new_val = int(new_result[1][idx])
+            d_list = []
+            for i in range(len(reveal_globals.global_core_relations)):
+                tabname = reveal_globals.global_core_relations[i]
+                attrib_list = reveal_globals.global_all_attribs[i]
+                for attrib in attrib_list:
+                    if attrib not in reveal_globals.global_key_attributes: #to be removed, due to joins
+                        if 'int' in attrib_types_dict[(tabname, attrib)] or 'numeric' in attrib_types_dict[(tabname, attrib)]:
+                            cur = reveal_globals.global_conn.cursor()
+                            # print("Select " + attrib + " From " + tabname + " ;")
+                            cur.execute("Select " + attrib + " From " + tabname + " ;")
+                            prev = cur.fetchone()
+                            prev = prev[0]
+                            val = int(prev)
+                            # print('Update ' + tabname + ' set ' + attrib + ' = ' + str(val+1) + ';') 
+                            cur.execute('Update ' + tabname + ' set ' + attrib + ' = ' + str(val+1) + ';') #for integer domain
+                            cur.close()
+                            updated_result = executable.getExecOutput()
+                            updated_val = int(updated_result[1][idx])
+                            if new_val != updated_val:
+                                d_list.append((tabname, attrib))
+                            cur = reveal_globals.global_conn.cursor()
+                            # print('Update ' + tabname + ' set ' + attrib + ' = ' + str(val) + ';')
+                            cur.execute('Update ' + tabname + ' set ' + attrib + ' = ' + str(val) + ';') #restoring the value
+                            cur.close()
+            print("UDF: ", projection_names[idx])
+            print("Dependency list: ", d_list)
+            if len(d_list) == 1:
+                #create 2 eqns, and find values >> aA + b = 0
+                my_arr = []
+                x_arr = []
+                #1st equation
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("Select " + d_list[0][1] + " From " + d_list[0][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                a = int(prev)
+                cur.close()
+                temp_arr = [a,1]
+                my_arr.append(temp_arr)
+                #2nd equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,1]
+                my_arr.append(temp_arr)
+                #numpy equation solver
+                my_arr = np.array(my_arr)
+                print("my_arr: ", my_arr)
+                x_arr = np.array(x_arr)
+                print("x_arr: ", x_arr)
+                soln = np.dot(np.linalg.inv(my_arr), x_arr) # np.linalg.solve(my_arr, x_arr)
+                print("Solution: ", soln)
+            elif len(d_list) == 2:
+                #create 4 eqns, and find values >> aA + bB + cAB + d = 0
+                my_arr = []
+                x_arr = []
+                #1st equation
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("Select " + d_list[0][1] + " From " + d_list[0][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                a = int(prev)
+                cur.execute("Select " + d_list[1][1] + " From " + d_list[1][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                b = int(prev)
+                cur.close()
+                temp_arr = [a,b,a*b,1]
+                my_arr.append(temp_arr)
+                #2nd equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,b,(a+1)*b,1]
+                my_arr.append(temp_arr)
+                #3rd equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[1][0] + ' set ' + d_list[1][1] + ' = ' + str(b+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,b+1,(a+1)*(b+1),1]
+                my_arr.append(temp_arr)
+                #4th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a,b+1,a*(b+1),1]
+                my_arr.append(temp_arr)
+                #numpy equation solver
+                my_arr = np.array(my_arr)
+                print("my_arr: ", my_arr)
+                x_arr = np.array(x_arr)
+                print("x_arr: ", x_arr)
+                soln = np.dot(np.linalg.inv(my_arr), x_arr) # np.linalg.solve(my_arr, x_arr)
+                print("Solution: ", soln)
+            elif len(d_list) == 3:
+                #create 8 eqns, and find values >> aA + bB + cC + dAB + eBC + fCA + gABC + h = 0my_arr = []
+                x_arr = []
+                #1st equation
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute("Select " + d_list[0][1] + " From " + d_list[0][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                a = int(prev)
+                cur.execute("Select " + d_list[1][1] + " From " + d_list[1][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                b = int(prev)
+                cur.execute("Select " + d_list[2][1] + " From " + d_list[2][0] + " ;")
+                prev = cur.fetchone()
+                prev = prev[0]
+                c = int(prev)
+                cur.close()
+                temp_arr = [a,b,c,a*b,b*c,c*a,a*b*c,1]
+                my_arr.append(temp_arr)
+                #2nd equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,b,c,(a+1)*b,b*c,c*(a+1),(a+1)*b*c,1]
+                my_arr.append(temp_arr)
+                #3rd equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[1][0] + ' set ' + d_list[1][1] + ' = ' + str(b+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,b+1,c,(a+1)*(b+1),(b+1)*c,c*(a+1),(a+1)*(b+1)*c,1]
+                my_arr.append(temp_arr)
+                #4th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[2][0] + ' set ' + d_list[2][1] + ' = ' + str(c+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a+1,b+1,c+1,(a+1)*(b+1),(b+1)*(c+1),(c+1)*(a+1),(a+1)*(b+1)*(c+1),1]
+                my_arr.append(temp_arr)
+                #5th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a,b+1,c+1,a*(b+1),(b+1)*(c+1),(c+1)*a,a*(b+1)*(c+1),1]
+                my_arr.append(temp_arr)
+                #6th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[1][0] + ' set ' + d_list[1][1] + ' = ' + str(b) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a,b,c+1,a*b,b*(c+1),(c+1)*a,a*b*(c+1),1]
+                my_arr.append(temp_arr)
+                #7th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a+1) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [(a+1),b,c+1,(a+1)*b,b*(c+1),(c+1)*(a+1),(a+1)*b*(c+1),1]
+                my_arr.append(temp_arr)
+                #8th equation
+                cur = reveal_globals.global_conn.cursor()
+                cur.execute('Update ' + d_list[0][0] + ' set ' + d_list[0][1] + ' = ' + str(a) + ';') #for integer domain
+                cur.execute('Update ' + d_list[1][0] + ' set ' + d_list[1][1] + ' = ' + str(b+1) + ';') #for integer domain
+                cur.execute('Update ' + d_list[2][0] + ' set ' + d_list[2][1] + ' = ' + str(c) + ';') #for integer domain
+                cur.close()
+                new_result = executable.getExecOutput()
+                x_arr.append([int(new_result[1][idx])])
+                temp_arr = [a,(b+1),c,a*(b+1),(b+1)*c,c*a,a*(b+1)*c,1]
+                my_arr.append(temp_arr)
+                #numpy equation solver
+                my_arr = np.array(my_arr)
+                print("my_arr: ", my_arr)
+                x_arr = np.array(x_arr)
+                print("x_arr: ", x_arr)
+                soln = np.dot(np.linalg.inv(my_arr), x_arr) # np.linalg.solve(my_arr, x_arr)
+                reveal_globals.scalarf_soln = soln
+                print("Solution: ", soln)
+            reveal_globals.udf.append([projection_names[idx], d_list , soln])
+        else:
+            reveal_globals.udf.append("NO")
+            
+        
+        
+
+            
+
     # HARDCODING FOR PROJECTION FOR NOW
     reveal_globals.local_other_info_dict = {}
     reveal_globals.local_other_info_dict['Current Mutation'] = 'No Mutation'
@@ -329,8 +540,8 @@ def getProjectedAttributes():
     reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
     reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
     # HARDCODIG FOR DEMO (TO BE REMOVED)
-    # for i in range(len(projectedAttrib)):
-    #     if projectedAttrib[i].strip() == 'o_orderkey':
-    #         projectedAttrib[i] = 'l_orderkey'
+    for i in range(len(projectedAttrib)):
+        if projectedAttrib[i].strip() == 'o_orderkey':
+            projectedAttrib[i] = 'l_orderkey'
     #####################################
     return projectedAttrib, projection_names

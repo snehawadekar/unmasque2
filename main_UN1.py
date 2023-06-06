@@ -32,6 +32,7 @@ turbo = Turbo(app)
 app.secret_key="dsl@iisc"
 status=0
 '''
+import count_handler
 import input_q
 import error_handler
 import platform
@@ -459,75 +460,84 @@ def func_orderby_start():
 
 def func_agg_Complete():
     print("inside:   reveal_proc_support.func_agg_Complete")
+    if reveal_globals.countPresent == 1:
+        count_handler.solve_count()
     reveal_globals.global_select_op_proc = reveal_globals.global_select_op
     reveal_globals.local_end_time = time.time()
     reveal_globals.global_agg_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     reveal_globals.global_extracted_info_dict['order by'] = extracted_part_info()
     # update_load()
+    
+    refine_Query()  
     func_orderby_start()
+    
+
 
 def func_agg_start():
     print("inside:   reveal_proc_support.func_agg_start")
     reveal_globals.local_start_time = time.time()
     reveal_globals.global_aggregated_attributes = aggregation.get_aggregation()
-    refine_Query()   
+    # refine_Query()   
     func_agg_Complete()
 
 
 def refine_Query():
-	print("inside:   reveal_proc_support.refine_Query")
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		attrib = reveal_globals.global_projected_attributes[i]
-		if attrib in reveal_globals.global_key_attributes and attrib in reveal_globals.global_groupby_attributes:
-			if not ('sum' in reveal_globals.global_aggregated_attributes[i][1] or 'count' in reveal_globals.global_aggregated_attributes[i][1]):
-				reveal_globals.global_aggregated_attributes[i] = (reveal_globals.global_aggregated_attributes[i][0], '')
-	temp_list = copy.deepcopy(reveal_globals.global_groupby_attributes)
-	for attrib in temp_list:
-		if attrib not in reveal_globals.global_projected_attributes:
-			try:
-				reveal_globals.global_groupby_attributes.remove(attrib)
-			except:
-				pass
-			continue
-		remove_flag = True
-		for elt in reveal_globals.global_aggregated_attributes:
-			if elt[0] == attrib and (not ('sum' in elt[1] or 'count' in elt[1])):
-				remove_flag = False
-				break
-		if remove_flag == True:
-			try:
-				reveal_globals.global_groupby_attributes.remove(attrib)
-			except:
-				pass
-	#UPDATE OUTPUTS
-	first_occur = True
-	reveal_globals.global_groupby_op = ''
-	for i in range(len(reveal_globals.global_groupby_attributes)):
-		elt = reveal_globals.global_groupby_attributes[i]
-		if first_occur == True:
-			reveal_globals.global_groupby_op = elt
-			first_occur = False
-		else:
-			reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
-	first_occur = True
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		elt = reveal_globals.global_projected_attributes[i]
-		reveal_globals.global_output_list.append(copy.deepcopy(elt))
-		if reveal_globals.global_aggregated_attributes[i][1] != '':
-			elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
-			if 'count' in reveal_globals.global_aggregated_attributes[i][1]:
-				elt = reveal_globals.global_aggregated_attributes[i][1]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
-		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
-			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
-		if first_occur == True:
-			reveal_globals.global_select_op = elt
-			first_occur = False
-		else:
-			reveal_globals.global_select_op = reveal_globals.global_select_op + ", " + elt	
-	return
+    print("inside:   reveal_proc_support.refine_Query")
+    for i in range(len(reveal_globals.global_projected_attributes)):
+        attrib = reveal_globals.global_projected_attributes[i]
+        if attrib in reveal_globals.global_key_attributes and attrib in reveal_globals.global_groupby_attributes:
+            if not ('sum' in reveal_globals.global_aggregated_attributes[i][1] or 'count' in reveal_globals.global_aggregated_attributes[i][1]):
+                reveal_globals.global_aggregated_attributes[i] = (reveal_globals.global_aggregated_attributes[i][0], '')
+    temp_list = copy.deepcopy(reveal_globals.global_groupby_attributes)
+    for attrib in temp_list:
+        if attrib not in reveal_globals.global_projected_attributes:
+            try:
+                reveal_globals.global_groupby_attributes.remove(attrib)
+            except:
+                pass
+            continue
+        remove_flag = True
+        for elt in reveal_globals.global_aggregated_attributes:
+            if elt[0] == attrib and (not ('sum' in elt[1] or 'count' in elt[1])):
+                remove_flag = False
+                break
+        if remove_flag == True:
+            try:
+                reveal_globals.global_groupby_attributes.remove(attrib)
+            except:
+                pass
+    #UPDATE OUTPUTS
+    first_occur = True
+    reveal_globals.global_groupby_op = ''
+    for i in range(len(reveal_globals.global_groupby_attributes)):
+        elt = reveal_globals.global_groupby_attributes[i]
+        if first_occur == True:
+            reveal_globals.global_groupby_op = elt
+            first_occur = False
+        else:
+            reveal_globals.global_groupby_op = reveal_globals.global_groupby_op + ", " + elt
+    first_occur = True
+    for i in range(len(reveal_globals.global_projected_attributes)):
+        elt = reveal_globals.global_projected_attributes[i]
+        reveal_globals.global_output_list.append(copy.deepcopy(elt))
+
+        if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
+            elt = reveal_globals.global_aggregated_attributes[i][0]
+            # elt += ' as ' + reveal_globals.global_projection_names[i]
+            reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
+        if reveal_globals.global_aggregated_attributes != [] and reveal_globals.global_aggregated_attributes[i][1] != '' :
+            elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
+            elt += ' as ' + reveal_globals.global_projection_names[i]
+            reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
+        
+        if first_occur == True:
+            reveal_globals.global_select_op = elt
+            first_occur = False
+        else:
+            reveal_globals.global_select_op = reveal_globals.global_select_op + ", " + elt	
+    return
+
 
 def func_groupby_Complete():
     print("inside:   reveal_proc_support.func_groupby_Complete")

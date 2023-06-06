@@ -75,6 +75,7 @@ global_orderby_time = ""
 global_agg_time = ""
 global_limit_time = ""
 global_oj_time = ""
+global_oj_nep_check_time = ""
 global_assemble_time=""
 
 global_conn = None
@@ -153,3 +154,5 @@ final_edge_seq =[]
 sem_eq_queries= []
 sem_eq_listdict= []
 check_nep_again = True
+scalarf_soln = []
+udf = []

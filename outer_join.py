@@ -303,27 +303,27 @@ def fn():
 
     
     st = time.time()
-    
+    reveal_globals.check_nep_again = reveal_globals.nep_flag
     while(reveal_globals.check_nep_again):
         
         reveal_globals.check_nep_again = False
         sem_eq_queries = temp_seq
         temp_seq = []
-        for i in range(0,len(sem_eq_queries)):
-            q = sem_eq_queries[i]
-            for tabname in reveal_globals.global_core_relations:
-                cur = reveal_globals.global_conn.cursor()
-                cur.execute("drop table if exists "+tabname )
-                cur.execute("create table " + tabname + " as select * from " + tabname + "_restore;")
-                cur.close()
-            # check_nep_oj.check_nep_oj(q) 
-            nep.match_oj(q)   
-            if reveal_globals.nep_flag:
-                qr = nep.nep_algorithm(reveal_globals.global_core_relations, q)
-                # print(reveal_globals.sem_eq_queries)
-                if qr != False:
-                    for x in reveal_globals.sem_eq_queries:
-                        temp_seq.append(x)
+        # for i in range(0,len(sem_eq_queries)):
+        q = sem_eq_queries[0]
+        # for tabname in reveal_globals.global_core_relations:
+        #     cur = reveal_globals.global_conn.cursor()
+        #     cur.execute("drop table if exists "+tabname )
+        #     cur.execute("create table " + tabname + " as select * from " + tabname + "_restore;")
+        #     cur.close()
+        # check_nep_oj.check_nep_oj(q) 
+        # nep.match_oj(q)   
+        # if reveal_globals.nep_flag:
+        qr = nep.nep_algorithm(reveal_globals.global_core_relations, q)
+        # print(reveal_globals.sem_eq_queries)
+        if qr != False:
+            for x in reveal_globals.sem_eq_queries:
+                temp_seq.append(x)
                 
     # print("sem_eq_queries")
     # print(sem_eq_queries)   
@@ -564,7 +564,7 @@ def FormulateQueries(final_edge_seq):
                 query = reveal_globals.query1
                 cur.execute(query)
                 res_hq = cur.fetchall()
-                print(res_hq[0][i])
+                # print(res_hq[0][i])
                 cur.close()
             #     if the corresponding value is null elt is the projected column
                 if res_hq[0][i] == 'Null':

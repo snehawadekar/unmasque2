@@ -140,7 +140,6 @@ def extract_aoa():
                     evaluated_list.append((pred[0], pred[1]))
                     for e in pos_e:
                         evaluated_list.append(e)
-    print(pos_e)
     end_time = time.time()
     # print("Join with AoA time: ", end_time - start_time)
     print("Step1: ", time.time() - reveal_globals.local_start_time) #aman

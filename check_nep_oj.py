@@ -21,7 +21,6 @@ def check_nep_oj(query):
         print(len(res_hq))
         
         cur = reveal_globals.global_conn.cursor()
-        
         cur.execute(extracted_query)
         res_eq = cur.fetchall() # fetchone always return a tuple whereas fetchall return list
         cur.close()
