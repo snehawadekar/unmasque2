@@ -13,7 +13,7 @@ def check_nep_oj(query):
         hidden_query=reveal_globals.query1
         # extracted_query = reveal_globals.output1
         extracted_query = query
-        # print("query=",query)
+        print("extracted_query=",query)
         reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
         cur.execute(hidden_query)
         res_hq = cur.fetchall() #fetchone always return a tuple whereas fetchall return list

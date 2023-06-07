@@ -140,7 +140,8 @@ def getCoreRelations(method = 'rname'):
 					new_result = executable.getExecOutput() #slow
 					reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
 					if len(new_result) <= 1:
-						core_relations.append(tabname)
+						# core_relations.append(tabname)
+						pass
 				except psycopg2.Error as e:
 					# establishConnection()
 					if e.pgcode == '42P01':

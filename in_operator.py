@@ -169,6 +169,14 @@ def in_extract(level=1):
         new_filter_list.append(copy.deepcopy(temp_list))
     print(new_filter_list)
     print('Disjunction Time: '+str(time.time() - global_start))
+    
+    disj_attrib =[]
+    for i in new_filter_list:
+        for j in i:
+            disj_attrib.append(j[1])
+            
+    reveal_globals.disj_attrib = disj_attrib
+            
     # reveal_globals.global_disj_time = time.time() -global_start
     # reveal_globals.global_tot_ext_time += time.time() -global_start
     

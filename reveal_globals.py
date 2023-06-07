@@ -156,3 +156,4 @@ sem_eq_listdict= []
 check_nep_again = True
 scalarf_soln = []
 udf = []
+disj_attrib =[]

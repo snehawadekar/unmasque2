@@ -418,9 +418,11 @@ def extractNEPValue(tabname,i):
     cur.execute("create table "+tabname +" as select * from " + tabname +"_nep ;")
     cur.close()
     
+    
+    
     temp = []
     for i in attrib_list:
-        if i not in reveal_globals.algebraic_pred_attributes:
+        if i not in reveal_globals.algebraic_pred_attributes and i not in reveal_globals.disj_attrib:
             temp.append(i)
             
     attrib_list= temp

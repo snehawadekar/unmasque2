@@ -567,7 +567,9 @@ def FormulateQueries(final_edge_seq):
                 # print(res_hq[0][i])
                 cur.close()
             #     if the corresponding value is null elt is the projected column
-                if res_hq[0][i] == 'Null':
+                if len(res_hq) ==0:
+                    pass
+                elif res_hq[0][i] == 'Null':
                     proj_col = elt
                 else:
                     for elem in reveal_globals.global_join_graph:
