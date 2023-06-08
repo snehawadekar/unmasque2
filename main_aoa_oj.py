@@ -678,6 +678,29 @@ def func_limit_Complete():
     ########## call new function to check if nep exists
     func_assemble_start()
     print(reveal_globals.output1)
+    
+
+    print("From Clause Time          : ", reveal_globals.global_from_time)
+    print("total DB Minimizer Time   : ", reveal_globals.global_min_time)
+    print("---copy_min_time          : ", reveal_globals.copy_min_time)
+    print("---view_min_time          : ", reveal_globals.view_min_time)
+    print("---cs_time s              : ", reveal_globals.cs_time)
+
+    print("Join Clause Extr          : ", reveal_globals.global_join_time)
+    print("Filter Predicate Ext      : ", reveal_globals.global_filter_time)
+    print(" aoa time                 : ", reveal_globals.global_aoa_time)
+    print(" IN time                  : ", reveal_globals.global_disj_time)
+
+    print("Projection extractor      : ", reveal_globals.global_projection_time)
+    print("Group By                  : ", reveal_globals.global_groupby_time)
+    print("Aggregate Time            : ", reveal_globals.global_agg_time)
+    print("Order By                  : ", reveal_globals.global_orderby_time)
+    print("Limit                     : ", reveal_globals.global_limit_time)
+    print(" oj + NEP check time      :" , reveal_globals.global_oj_nep_check_time)
+    print("Outer Join time           : ", reveal_globals.global_oj_time)
+    print("NEP time                  : ", reveal_globals.global_nep_time)
+    print("total extraction time     : ", reveal_globals.global_tot_ext_time)
+
     st =  time.time()
     print(" Checking NEP and OJ on initail database")
     check_nep_oj.check_nep_oj(reveal_globals.output1)
