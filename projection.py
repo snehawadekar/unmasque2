@@ -540,8 +540,8 @@ def getProjectedAttributes():
     reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
     reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
     # HARDCODIG FOR DEMO (TO BE REMOVED)
-    for i in range(len(projectedAttrib)):
-        if projectedAttrib[i].strip() == 'o_orderkey':
-            projectedAttrib[i] = 'l_orderkey'
+    # for i in range(len(projectedAttrib)):
+    #     if projectedAttrib[i].strip() == 'o_orderkey':
+    #         projectedAttrib[i] = 'l_orderkey'
     #####################################
     return projectedAttrib, projection_names
