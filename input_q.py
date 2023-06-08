@@ -12,7 +12,7 @@ def get_input_query():
     # Q2 p
     # reveal_globals.query1 = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name limit 100;"
     # Q3
-    # reveal_globals.query1 = " select l_orderkey, min(l_extendedprice - (l_extendedprice*l_discount) + 4 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
+    # reveal_globals.query1 = " select l_orderkey, sum(l_extendedprice*(1-l_discount))as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
     # reveal_globals.query1 = " select l_orderkey, sum(9*l_extendedprice+ 2*l_discount + (-5)*(l_extendedprice*l_discount)+ 9 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
     # reveal_globals.query1 = " select l_orderkey, min(8*l_extendedprice+ 0*l_discount + 0*(l_extendedprice*l_discount)+ 0 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
 
@@ -345,11 +345,11 @@ def get_input_query():
     # Q1 - part, partsupp, lineitem
     # extracted correctly
     # 12 min to run on 1 gb database 
-    # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
+    reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
 
     # faster and simpler version
     #***>1
-    reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') limit 1500; "
+    # reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N'); "
  
 
     # Q2 - supplier , lineitem orders nation
