@@ -14,7 +14,7 @@ def get_input_query():
     # Q3
     # reveal_globals.query1 = " select l_orderkey, sum(l_extendedprice*(1-l_discount))as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
     # reveal_globals.query1 = " select l_orderkey, sum(9*l_extendedprice+ 2*l_discount + (-5)*(l_extendedprice*l_discount)+ 9 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
-    # reveal_globals.query1 = " select l_orderkey, min(8*l_extendedprice+ 0*l_discount + 0*(l_extendedprice*l_discount)+ 0 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < '1995-03-15' and l_shipdate > '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey limit 10;"
+    reveal_globals.query1 = " select l_orderkey, min(8*l_extendedprice+ 0*l_discount + 4*(l_extendedprice*l_discount)+ 0 ) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = 'BUILDING' and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate <= '1995-03-15' and l_shipdate >= '1995-03-15' group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate, l_orderkey ;"
 
     # Q4
     # reveal_globals.query1 = "Select o_orderdate, o_orderpriority, count(*) as order_count From orders Where o_orderdate >= date '1997-07-01' and o_orderdate < date '1997-07-01' + interval '3' month Group By o_orderdate, o_orderpriority Order By o_orderpriority Limit 10;"
@@ -201,7 +201,7 @@ def get_input_query():
     
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber;"
     #aoa +nep
-    reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and l_linenumber <>1 ; "
+    # reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and l_linenumber <>1 ; "
     # reveal_globals.query1 = "select l_orderkey,l_linenumber from orders, lineitem, partsupp where o_orderkey = l_orderkey and ps_partkey = l_partkey and ps_suppkey = l_suppkey and ps_availqty = l_linenumber and l_shipdate >= o_orderdate and o_orderdate >= '1990-01-01' and l_commitdate <= l_receiptdate and l_shipdate <= l_commitdate and l_receiptdate >= date '1994-01-01' and l_commitdate <= date '1994-07-22';"
     
     # extracted results same (without OR )
@@ -345,13 +345,13 @@ def get_input_query():
     # Q1 - part, partsupp, lineitem
     # extracted correctly
     # 12 min to run on 1 gb database 
-    reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
+    # reveal_globals.query1 = " Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 4 or ps_availqty > 3350 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK', 'AIR', 'FOB', 'RAIL') and l_quantity<>31 and l_quantity <> 35 AND (l_quantity >= 20)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
 
     # faster and simpler version
-    #***>1
-    # reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  RIGHT outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N'); "
- 
-
+    #***>1 +11 sec
+    # reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  right outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N'); "
+    # reveal_globals.query1 = "SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, p_size FROM part inner JOIN partsupp ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) left outer JOIN lineitem ON ps_suppkey = l_suppkey and l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
+    reveal_globals.query1 = " SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, p_size FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')  "
     # Q2 - supplier , lineitem orders nation
     # extracted correctly
     # reveal_globals.query1 = " Select * From supplier right outer join lineitem on s_suppkey = l_suppkey and l_receiptdate >= l_commitdate and l_returnflag <> 'R'  left outer join orders on o_orderkey = l_orderkey and ( o_orderstatus = 'F' or o_orderstatus = 'P') left outer join nation on s_nationkey = n_nationkey ; "
@@ -359,7 +359,7 @@ def get_input_query():
 
     # faster and simpler version
     # reveal_globals.query1 = " Select l_suppkey, s_acctbal,l_orderkey,o_orderstatus, n_nationkey, l_linenumber From supplier right outer join lineitem on s_suppkey = l_suppkey and s_acctbal<= 2000 and l_linenumber >5 left outer join orders on o_orderkey = l_orderkey and ( o_orderstatus = 'F' ) left outer join nation on s_nationkey = n_nationkey  ; "
-    #***>2
+    #***>2 +1 sec
     # reveal_globals.query1 = " Select * From supplier  left outer join nation on s_nationkey = n_nationkey and (s_acctbal<= 2000 or n_regionkey = 3) and n_name <>'RUSSIA' and s_suppkey > 25; "
 
     # Q3 - lineitem orders
@@ -371,15 +371,15 @@ def get_input_query():
     
     # Q4 part partsupplier supplier
     # reveal_globals.query1 = "select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey right outer join lineitem on ps_suppkey=l_suppkey;"
-    #***>3
+    #***>3 +4 sec
     # reveal_globals.query1 = " select p_partkey,s_acctbal,ps_suppkey from part inner join partsupp on p_partkey=ps_partkey and p_size>7 LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey and s_acctbal< 2000 ;"
 
     # Q5 - customer order supplier
-    #***>5 1:51am
-    # reveal_globals.query1 = "select c_acctbal, o_orderkey, c_name,o_shippriority , c_nationkey from orders right outer join customer on c_custkey = o_custkey and o_orderstatus <> 'O' where c_acctbal <1000 and c_nationkey <10 limit 100000; "
+    #***>5 1:51am + 2 sec
+    # reveal_globals.query1 = "select c_acctbal, o_orderkey, c_name,o_shippriority , c_nationkey from orders right outer join customer on c_custkey = o_custkey and o_orderstatus <> 'O' where c_acctbal <1000 and c_nationkey <10 ; "
     # Q6
     # reveal_globals.query1 =  
-    #***>4
+    #***>4+ 10 sec
     # reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and l_linenumber <>1 ; "
 
     return  

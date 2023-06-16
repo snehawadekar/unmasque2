@@ -166,3 +166,15 @@ Select * From supplier inner join lineitem on s_suppkey = l_suppkey   inner join
 
 
 Select * From supplier  inner join nation on s_nationkey = n_nationkey and (s_acctbal<= 2000 or n_regionkey = 4)  and n_name <>'EGYPY';
+
+
+Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size FROM lineitem  LEFT OUTER JOIN partsupp ON l_suppkey = ps_suppkey  FULL outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')
+
+
+
+LEFT outer join partsupp on p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) 
+RIGHT outer join lineitem on ps_suppkey = l_suppkey 
+WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')
+
+SELECT p.partkey, p.partname, ps.suppkey, l.orderkey FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 )   where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')
+-- WHERE

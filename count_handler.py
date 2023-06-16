@@ -238,7 +238,7 @@ def solve_count():
 							while(j<len(agg_array) - 1):
 								#print(agg_array[j+1], type(agg_array[j+1]))
 								if(check_value == agg_array[j+1]):
-									AggregationList[result_index] = ((str(c1)+ " * " +dep_a1 + " + "+str(c2) +" * "+ dep_a2 + str(c3) +" * "+ dep_a1+" * "+ dep_a2 +"+" + str(c4)),agg_array[j])
+									AggregationList[result_index] = ((str(c1)+ " * " +dep_a1 + " + "+str(c2) +" * "+ dep_a2 +"+"+ str(c3) +" * "+ dep_a1+" * "+ dep_a2 +"+" + str(c4)),agg_array[j])
 									break
 								j = j + 2
 							reveal_globals.local_other_info_dict['Actual Aggregation value for ' + attrib+' in the result'] = str(check_value)

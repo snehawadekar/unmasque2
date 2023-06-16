@@ -5,7 +5,8 @@ import executable
 # HAsh based result comparator
 def match(Q_E):
     
-    gst=time.time()
+    st=time.time()
+    gst =st
     cur  = reveal_globals.global_conn.cursor()
     cur.execute("create view r_e as "+ Q_E)
     cur.close()

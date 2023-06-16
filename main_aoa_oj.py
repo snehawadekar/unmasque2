@@ -628,7 +628,8 @@ def func_agg_Complete():
     # func_orderby_start()
     if reveal_globals.countPresent == 1:
         func_count_handler()
-    refine_Query()  
+    if len(reveal_globals.global_aggregated_attributes) !=0:
+        refine_Query()  
     func_orderby_start()
 
 
