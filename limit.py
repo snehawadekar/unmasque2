@@ -11,6 +11,12 @@ import itertools
 
 	
 def get_limit():
+	for tab in reveal_globals.global_core_relations:
+		cur = reveal_globals.global_conn.cursor()
+		cur.execute('select count(*) from' + tab + ';') 
+		res = cur.fetchall()
+		print(res)
+		cur.close()
 	print("inside -- limit.get_limit")
 	reveal_globals.local_other_info_dict = {}
 	pre_assignment = True

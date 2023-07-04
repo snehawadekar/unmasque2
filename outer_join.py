@@ -346,11 +346,11 @@ def fn():
     #     cur.close()
     
     # new_result = executable.getExecOutput()
-    reveal_globals.nep_flag = False 
-    reveal_globals.outer_join_flag = False 
+    
     
     for Q_E in reveal_globals.sem_eq_queries:
-        # r = nep.match_oj(Q_E)
+        reveal_globals.nep_flag = False 
+        reveal_globals.outer_join_flag = False 
         r = check_nep_oj.check_nep_oj( Q_E )
         if reveal_globals.nep_flag == False and reveal_globals.outer_join_flag == False :
             reveal_globals.output1 = Q_E
@@ -367,10 +367,8 @@ def fn():
     
     
 def FormulateQueries(final_edge_seq):
-    # needs to be modified for algebraic predicates
-    # and disjunction maybe
-    
-    
+    # semantic manipulation of the query.
+
     ### placement of filter predicate #######
     filter_pred_on = []
     filter_pred_where = []
@@ -544,7 +542,7 @@ def FormulateQueries(final_edge_seq):
         elt = reveal_globals.global_projected_attributes[i]
         reveal_globals.global_output_list.append(copy.deepcopy(elt))
         if reveal_globals.global_aggregated_attributes != [] and reveal_globals.global_aggregated_attributes[i][1] != '' :
-            elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
+            elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + reveal_globals.global_aggregated_attributes[i][0] + ')'
             if 'count' in reveal_globals.global_aggregated_attributes[i][1]:
                 elt = reveal_globals.global_aggregated_attributes[i][1]
             reveal_globals.global_output_list[-1] = copy.deepcopy(elt)

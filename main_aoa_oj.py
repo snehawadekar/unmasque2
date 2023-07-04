@@ -571,17 +571,17 @@ def func_project_start():
 	reveal_globals.local_start_time = time.time()
 	reveal_globals.global_projected_attributes, reveal_globals.global_projection_names = projection.getProjectedAttributes()
 	first_occur = True
-	for i in range(len(reveal_globals.global_projected_attributes)):
-		elt = reveal_globals.global_projected_attributes[i]
-		reveal_globals.global_output_list.append(copy.deepcopy(elt))
-		if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
-			elt = elt + ' as ' + reveal_globals.global_projection_names[i]
-			reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
-		if first_occur == True:
-			reveal_globals.global_select_op_proc = elt
-			first_occur = False
-		else:
-			reveal_globals.global_select_op_proc = reveal_globals.global_select_op_proc + ", " + elt
+	# for i in range(len(reveal_globals.global_projected_attributes)):
+	# 	elt = reveal_globals.global_projected_attributes[i]
+	# 	reveal_globals.global_output_list.append(copy.deepcopy(elt))
+	# 	if elt != reveal_globals.global_projection_names[i] and reveal_globals.global_projection_names[i] != '':
+	# 		elt = elt + ' as ' + reveal_globals.global_projection_names[i]
+	# 		reveal_globals.global_output_list[-1] = copy.deepcopy(reveal_globals.global_projection_names[i])
+	# 	if first_occur == True:
+	# 		reveal_globals.global_select_op_proc = elt
+	# 		first_occur = False
+	# 	else:
+	# 		reveal_globals.global_select_op_proc = reveal_globals.global_select_op_proc + ", " + elt
 	func_project_Complete()
 
 def func_project_Complete():
@@ -868,7 +868,7 @@ def refine_Query():
         if reveal_globals.global_aggregated_attributes != [] and reveal_globals.global_aggregated_attributes[i][1] != '' :
             elt = reveal_globals.global_aggregated_attributes[i][1] + '(' + elt + ')'
             elt += ' as ' + reveal_globals.global_projection_names[i]
-            reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
+            # reveal_globals.global_output_list[-1] = copy.deepcopy(elt)
         
         if first_occur == True:
             reveal_globals.global_select_op = elt

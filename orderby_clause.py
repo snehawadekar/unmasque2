@@ -30,7 +30,7 @@ class CandidateAttribute():
 		print(self.dependencyList)
 		print(self.index)
 		print('')
-import time
+
 def checkOrdering(obj, result):
 	print("inside -- orderby_clause.checkOrdering")
 	# print(len(result),result)

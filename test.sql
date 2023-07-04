@@ -178,3 +178,40 @@ WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantit
 
 SELECT p.partkey, p.partname, ps.suppkey, l.orderkey FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 )   where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')
 -- WHERE
+
+Select l_orderkey, (Sum((1 * l_extendedprice) + (0 * l_discount)+(1 * l_extendedprice * l_discount)+0)) as revenue, l_shipmode, l_returnflag, c_custkey, o_orderdate, o_shippriority
+From customer, lineitem, orders
+Group By c_custkey, l_orderkey, l_shipmode, l_returnflag, o_orderdate, o_shippriority
+Order By revenue asc
+
+
+
+    reveal_globals.query1 =" SELECT l_orderkey, SUM(l_extendedprice*(1-l_discount)) AS revenue, l_returnflag, c_custkey,  o_orderdate, o_shippriority  FROM lineitem  LEFT OUTER JOIN orders ON l_orderkey = o_orderkey and o_orderdate < '1995-03-15'  LEFT OUTER JOIN customer ON c_custkey = o_custkey  WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK' ) AND l_quantity >= 20 AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')  AND l_quantity<> 36 GROUP BY l_orderkey, o_orderdate, o_shippriority, l_returnflag, c_custkey  ORDER BY revenue desc "
+
+
+
+SELECT l_orderkey, SUM(l_extendedprice*(1-l_discount)) AS revenue, l_returnflag, c_custkey,  o_orderdate, o_shippriority 
+FROM lineitem  
+inner JOIN orders ON l_orderkey = o_orderkey and o_orderdate < '1995-03-15'  
+inner JOIN customer ON c_custkey = o_custkey  
+WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK' ) 
+AND l_quantity >= 20 AND l_commitdate <= l_receiptdate and l_returnflag<>'R'
+GROUP BY l_orderkey, o_orderdate, o_shippriority, l_returnflag, c_custkey  
+ORDER BY revenue desc ;
+
+SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, sum(p_size) 
+FROM lineitem 
+INNER JOIN partsupp ps ON l_suppkey = ps_suppkey 
+LEFT OUTER JOIN part ON p_partkey = ps_partkey AND ( p_size > 49 or ps_availqty > 9900 ) 
+WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') AND l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') 
+GROUP BY l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty,
+ORDER BY ps_availqty 
+
+
+SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, sum(p_size)  
+FROM lineitem  
+INNER JOIN partsupp ps ON l_suppkey = ps_suppkey  
+INNER JOIN part ON p_partkey = ps_partkey AND ( p_size > 30 or ps_availqty > 9000 )  
+WHERE l_shipmode IN ('MAIL', 'SHIP' ) AND (l_quantity >= 30) AND l_commitdate <= l_receiptdate  
+GROUP BY l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty 
+ORDER BY ps_availqty;  

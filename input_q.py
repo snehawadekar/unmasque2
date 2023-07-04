@@ -351,7 +351,7 @@ def get_input_query():
     #***>1 +11 sec
     # reveal_globals.query1 = " Select l_suppkey, l_returnflag , p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and ( p_size > 49 or ps_availqty > 9900 )  right outer join lineitem on ps_suppkey=l_suppkey WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N'); "
     # reveal_globals.query1 = "SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, p_size FROM part inner JOIN partsupp ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) left outer JOIN lineitem ON ps_suppkey = l_suppkey and l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') "
-    reveal_globals.query1 = " SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, p_size FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N')  "
+    # reveal_globals.query1 = " SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, sum(p_size) FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') GROUP BY l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty ORDER BY ps_availqty LIMIT 100"
     # Q2 - supplier , lineitem orders nation
     # extracted correctly
     # reveal_globals.query1 = " Select * From supplier right outer join lineitem on s_suppkey = l_suppkey and l_receiptdate >= l_commitdate and l_returnflag <> 'R'  left outer join orders on o_orderkey = l_orderkey and ( o_orderstatus = 'F' or o_orderstatus = 'P') left outer join nation on s_nationkey = n_nationkey ; "
@@ -381,5 +381,21 @@ def get_input_query():
     # reveal_globals.query1 =  
     #***>4+ 10 sec
     # reveal_globals.query1 = " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and l_linenumber <>1 ; "
+    # EXTRACTED CORRECTLY
+    # reveal_globals.query1 = " SELECT l_orderkey, SUM(l_extendedprice*(1-l_discount)) AS revenue, l_returnflag, c_custkey,  o_orderdate, o_shippriority  FROM lineitem  LEFT OUTER JOIN orders ON l_orderkey = o_orderkey and o_orderdate < '1995-03-15'  LEFT OUTER JOIN customer ON c_custkey = o_custkey  WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK' ) AND l_quantity >= 20 AND l_commitdate <= l_receiptdate and l_returnflag<>'R' GROUP BY l_orderkey, o_orderdate, o_shippriority, l_returnflag, c_custkey  ORDER BY revenue desc limit 800; "
+    # EXTRACTED CORRECTLY
+    # reveal_globals.query1 = " SELECT l_orderkey, SUM(l_extendedprice*(1-l_discount)) AS revenue, l_returnflag, c_custkey,  o_orderdate, o_shippriority  FROM lineitem  inner JOIN orders ON l_orderkey = o_orderkey and o_orderdate < '1995-03-15'  LEFT OUTER JOIN customer ON c_custkey = o_custkey  WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK' ) AND l_quantity >= 20 AND l_commitdate <= l_receiptdate and l_returnflag<>'R' GROUP BY l_orderkey, o_orderdate, o_shippriority, l_returnflag, c_custkey  ORDER BY revenue desc limit 800; "
+
+    # reveal_globals.query1 = " SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, sum(p_size)  FROM lineitem  INNER JOIN partsupp ps ON l_suppkey = ps_suppkey  LEFT OUTER JOIN part ON p_partkey = ps_partkey AND ( p_size > 30 or ps_availqty > 9000 )  WHERE l_shipmode IN ('MAIL', 'SHIP' ) AND (l_quantity >= 30) AND l_commitdate <= l_receiptdate and l_quantity <> 40  GROUP BY l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty ORDER BY ps_availqty  "
+    reveal_globals.query1 = " SELECT l_orderkey, SUM(l_extendedprice+ 3*l_tax ) AS revenue, l_returnflag, c_custkey,  o_orderdate, o_shippriority  FROM lineitem  inner JOIN orders ON l_orderkey = o_orderkey and o_orderdate < '1995-03-15'  LEFT OUTER JOIN customer ON c_custkey = o_custkey  WHERE l_shipmode IN ('MAIL', 'SHIP', 'TRUCK' ) AND l_quantity >= 20 AND l_extendedprice >= 30000 and l_commitdate <= l_receiptdate and l_returnflag<>'R' GROUP BY l_orderkey, o_orderdate, o_shippriority, l_returnflag, c_custkey  ORDER BY revenue desc limit 800; "
 
     return  
+
+# query =[
+#     "SELECT l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty, sum(p_size) FROM lineitem inner JOIN partsupp ps ON l_suppkey = ps_suppkey left outer join part ON p_partkey = ps_partkey and ( p_size > 49 or ps_availqty > 9900 ) where l_shipmode IN ('MAIL', 'SHIP', 'TRUCK') and l_quantity<>36  AND (l_quantity >= 30)  AND l_commitdate <= l_receiptdate AND l_returnflag NOT IN ('N') GROUP BY l_suppkey, l_returnflag , p_partkey, l_quantity, ps_availqty ORDER BY ps_availqty LIMIT 100",
+#     " Select * From supplier  left outer join nation on s_nationkey = n_nationkey and (s_acctbal<= 2000 or n_regionkey = 3) and n_name <>'RUSSIA' and s_suppkey > 25;",
+#     " select p_partkey,s_acctbal,ps_suppkey from part inner join partsupp on p_partkey=ps_partkey and p_size>7 LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey and s_acctbal< 2000 ;",
+#     " select l_orderkey,l_linenumber from lineitem, partsupp where ps_partkey = l_partkey and ps_suppkey = l_suppkey and l_linenumber <>1 ; ",
+#     "select c_acctbal, o_orderkey, c_name,o_shippriority , c_nationkey from orders right outer join customer on c_custkey = o_custkey and o_orderstatus <> 'O' where c_acctbal <1000 and c_nationkey <10 ; "
+    
+# ]

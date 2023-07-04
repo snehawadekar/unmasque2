@@ -68,7 +68,8 @@ def solve_count():
 						if attrib != dep_a1 and attrib != dep_a2 and attrib not in reveal_globals.global_projected_attributes or (attrib in reveal_globals.global_groupby_attributes):
 							continue
 						else:
-							result_index_list = [1] # temporary
+							result_index_list = [reveal_globals.udf.index(ele)] # temporary # CHANGE 
+							print(reveal_globals.udf.index(ele))
 						if attrib in reveal_globals.global_key_attributes and proj_att in reveal_globals.global_groupby_attributes:
 							groupby_key_flag = True
 						for result_index in result_index_list:
@@ -238,7 +239,7 @@ def solve_count():
 							while(j<len(agg_array) - 1):
 								#print(agg_array[j+1], type(agg_array[j+1]))
 								if(check_value == agg_array[j+1]):
-									AggregationList[result_index] = ((str(c1)+ " * " +dep_a1 + " + "+str(c2) +" * "+ dep_a2 +"+"+ str(c3) +" * "+ dep_a1+" * "+ dep_a2 +"+" + str(c4)),agg_array[j])
+									AggregationList[result_index] = (( "(" + str(c1)+ " * " +dep_a1 + ")" + " + "+ "("+str(c2) +" * "+ dep_a2 + ")" + "+" + "(" + str(c3) +" * "+ dep_a1+" * "+ dep_a2 + ")" + "+" + str(c4)),agg_array[j])
 									break
 								j = j + 2
 							reveal_globals.local_other_info_dict['Actual Aggregation value for ' + attrib+' in the result'] = str(check_value)

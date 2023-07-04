@@ -90,7 +90,7 @@ def get_aggregation():
 				if attrib in elt:
 					key_list = elt
 					break
-			#Attribute Filtering
+			#Attribute FilteringAggregationList
 			if attrib not in reveal_globals.global_projected_attributes or (attrib in reveal_globals.global_groupby_attributes):
 				continue
 			else:

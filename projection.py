@@ -436,6 +436,7 @@ def getProjectedAttributes():
             elif len(d_list) == 3:
                 #create 8 eqns, and find values >> aA + bB + cC + dAB + eBC + fCA + gABC + h = 0my_arr = []
                 x_arr = []
+                my_arr = []
                 #1st equation
                 new_result = executable.getExecOutput()
                 x_arr.append([int(new_result[1][idx])])
